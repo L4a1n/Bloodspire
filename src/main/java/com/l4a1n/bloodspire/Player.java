@@ -1,4 +1,3 @@
-import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
@@ -13,8 +12,6 @@ public class Player {
         shape.setCenterY(y);
         targetX = x;
         targetY = y;
-
-        shape.setOnMouseClicked(this::setTarget);
     }
 
     public Circle getShape() {
@@ -29,9 +26,9 @@ public class Player {
         return shape.getCenterY();
     }
 
-    public void setTarget(MouseEvent event) {
-        targetX = event.getX();
-        targetY = event.getY();
+    public void setTarget(double x, double y) {
+        targetX = x;
+        targetY = y;
     }
 
     public void update() {
@@ -39,7 +36,7 @@ public class Player {
         double dy = targetY - shape.getCenterY();
         double distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distance > 2) {
+        if (distance > 2) { // Bewegung nur, wenn das Ziel nicht erreicht ist
             shape.setCenterX(shape.getCenterX() + dx / distance * 2);
             shape.setCenterY(shape.getCenterY() + dy / distance * 2);
         }
