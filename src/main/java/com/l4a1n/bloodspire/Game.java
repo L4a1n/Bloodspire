@@ -1,4 +1,5 @@
 import javafx.animation.AnimationTimer;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -25,6 +26,7 @@ public class Game {
         setupMonsters();
         setupChest();
         setupDoors();
+        setupMouseClick();
         startGameLoop();
     }
 
@@ -74,11 +76,19 @@ public class Game {
         }
     }
 
+    private void setupMouseClick() {
+        gamePane.setOnMouseClicked((MouseEvent event) -> {
+            double targetX = event.getX();
+            double targetY = event.getY();
+            player.setTarget(targetX, targetY); // Zielposition setzen
+        });
+    }
+
     private void startGameLoop() {
         AnimationTimer gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                player.update();
+                player.update(); // Spielerbewegung
                 for (Monster monster : monsters) {
                     monster.moveTowards(player.getX(), player.getY());
                 }
