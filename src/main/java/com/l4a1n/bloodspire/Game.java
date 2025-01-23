@@ -1,3 +1,5 @@
+package com.l4a1n.bloodspire;
+
 import javafx.animation.AnimationTimer;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
