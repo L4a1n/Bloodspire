@@ -1,15 +1,18 @@
-package com.l4a1n.bloodspire;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
 
-import com.almasb.fxgl.app.GameApplication;
-import com.almasb.fxgl.app.GameSettings;
-
-public class Bloodspire extends GameApplication {
-
+public class Bloodspire extends Application {
     @Override
-    protected void initSettings(GameSettings settings) {
-        settings.setWidth(300);
-        settings.setHeight(200);
-        settings.setTitle("Basic Game App");
+    public void start(Stage stage) {
+        Game game = new Game(); // Hauptspiel-Logik
+        Pane gamePane = game.getGamePane(); // Spielbereich
+
+        Scene scene = new Scene(gamePane, 800, 800); // Spielszene
+        stage.setTitle("Bloodspire");
+        stage.setScene(scene);
+        stage.show();
     }
 
     public static void main(String[] args) {
