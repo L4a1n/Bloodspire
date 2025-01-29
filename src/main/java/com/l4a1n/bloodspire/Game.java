@@ -1,6 +1,7 @@
 package com.l4a1n.bloodspire;
 
 import javafx.animation.AnimationTimer;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -79,10 +80,25 @@ public class Game {
     }
 
     private void setupMouseClick() {
+        // Wenn die Maus gezogen wird...
+        gamePane.setOnMouseDragged((MouseEvent event) -> {
+            // Wenn es die Linke Maustaste ist
+            if (event.getButton() == MouseButton.PRIMARY){
+                // Setzt die Koordinaten der Maus zu Zielkoordinaten des Spielers
+                double targetX = event.getX();
+                double targetY = event.getY();
+                player.setTarget(targetX, targetY); // Zielposition setzen
+            }
+        });
+        // Wenn die Maus nur geclickt wird
         gamePane.setOnMouseClicked((MouseEvent event) -> {
-            double targetX = event.getX();
-            double targetY = event.getY();
-            player.setTarget(targetX, targetY); // Zielposition setzen
+            // Wenn es die Linke Maustaste ist
+            if (event.getButton() == MouseButton.PRIMARY){
+                // Setzt die Koordinaten der Maus zu Zielkoordinaten des Spielers
+                double targetX = event.getX();
+                double targetY = event.getY();
+                player.setTarget(targetX, targetY); // Zielposition setzen
+            }
         });
     }
 
@@ -93,6 +109,7 @@ public class Game {
                 player.update(); // Spielerbewegung
                 for (Monster monster : monsters) {
                     monster.moveTowards(player.getX(), player.getY());
+                    System.out.println(monster.returnX());
                 }
             }
         };
