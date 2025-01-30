@@ -13,6 +13,7 @@ import java.util.Random;
 
 public class Game {
     private Pane gamePane;
+    private List<Wall> walls;
     private Player player;
     private List<Monster> monsters;
     private List<Door> doors;
@@ -25,6 +26,7 @@ public class Game {
         random = new Random();
 
         setupRoom();
+        setupWalls();
         setupPlayer();
         setupMonsters();
         setupChest();
@@ -44,6 +46,11 @@ public class Game {
         room.setStroke(Color.BLACK);
         room.setStrokeWidth(5);
         gamePane.getChildren().add(room);
+    }
+
+    private void setupWalls(){
+        walls = new ArrayList<>();
+
     }
 
     private void setupPlayer() {
@@ -72,7 +79,7 @@ public class Game {
         int doorCount = random.nextInt(3) + 1; // 1-4 Türen
 
         for (int i = 0; i < doorCount; i++) {
-            int side = i % 4; // Bestimmt die Wand
+            int side = i % 4; // Bestimmt die Wall
             Door door = new Door(side, random.nextInt(700) + 50);
             doors.add(door);
             gamePane.getChildren().add(door.getShape());
@@ -108,8 +115,7 @@ public class Game {
             public void handle(long now) {
                 player.update(); // Spielerbewegung
                 for (Monster monster : monsters) {
-                    monster.moveTowards(player.getX(), player.getY());
-                    System.out.println(monster.returnX());
+                    monster.moveTowards(player.getX(), player.getY(), monsters);
                 }
             }
         };

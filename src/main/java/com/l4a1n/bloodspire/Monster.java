@@ -2,9 +2,12 @@ package com.l4a1n.bloodspire;
 
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import java.util.List;
 
 public class Monster {
     private Circle shape;
+    private static final double SPEED = 1.0;
+    private static final double AVOID_DISTANCE = 40;
 
     public Monster(double x, double y) {
         shape = new Circle(20, Color.RED);
@@ -12,28 +15,35 @@ public class Monster {
         shape.setCenterY(y);
     }
 
-    public Circle getShape() {
-        return shape;
-    }
+    // The "David" Getters
+    public Circle getShape() {return shape;}
+    public double getX(){return shape.getCenterX();}                // return X Koordinate proportional von der Mitte der Figur
+    public double getY(){return shape.getCenterY();}                // return Y Koordinate proportional von der Mitte der Figur
 
-    public double returnX(){
-        return shape.getCenterX();
-    }
-    public double returnY(){
-        return shape.getCenterY();
-    }
-
-    public void moveTowards(double targetX, double targetY) {
-        // dx -> delta X ist Spieler-X-Position - eigene Mitte ...
+    public void moveTowards(double targetX, double targetY, List<Monster> monsters) {
         double dx = targetX - shape.getCenterX();
         double dy = targetY - shape.getCenterY();
-        // distance -> Wurzel aus DeltaX quadrat + DeltaY quadrat
         double distance = Math.sqrt(dx * dx + dy * dy);
 
-        // Der Part sorgt dafür das die Monster nicht auf dem Player sitzen sondern den "Personal Space" des Players berücksichtigen
+        // Der Part sorgt dafür das die Monster nicht auf dem Player sitzen, sondern den "Personal Space" des Players berücksichtigen
         if (distance > 30) {
-            shape.setCenterX(shape.getCenterX() + dx / distance);
-            shape.setCenterY(shape.getCenterY() + dy / distance);
+            double moveX = dx / distance * SPEED;
+            double moveY = dy / distance * SPEED;
+
+            for (Monster other : monsters){
+                if (other == this) continue;
+
+                double diffX = getX() - other.getX();
+                double diffY = getY() - other.getY();
+                double otherDistance = Math.sqrt(diffX * diffX + diffY * diffY);
+
+                if (otherDistance < AVOID_DISTANCE){
+                    moveX += diffX / otherDistance * 0.5;
+                    moveY += diffY / otherDistance * 0.5;
+                }
+            }
+            shape.setCenterX(getX() + moveX);
+            shape.setCenterY(getY() + moveY);
         }
     }
 }

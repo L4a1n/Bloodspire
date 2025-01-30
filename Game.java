@@ -72,7 +72,7 @@ public class Game {
         int doorCount = random.nextInt(3) + 1; // 1-4 Türen
 
         for (int i = 0; i < doorCount; i++) {
-            int side = i % 4; // Bestimmt die Wand
+            int side = i % 4; // Bestimmt die Wall
             Door door = new Door(side, random.nextInt(700) + 50);
             doors.add(door);
             gamePane.getChildren().add(door.getShape());
