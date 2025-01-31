@@ -10,10 +10,24 @@ public class Wall {
         shape = new Rectangle(w, h, Color.BLACK);
         shape.setX(x);
         shape.setY(y);
+        shape.setWidth(w);
+        shape.setHeight(h);
     }
 
     public Rectangle getShape(){return shape;}
-    //public double getX(){}                // return X Koordinate proportional von der Mitte der Figur
-    //public double getY(){}                // return Y Koordinate proportional von der Mitte der Figur
+    public double getX(){return shape.getX();}
+    public double getY(){return shape.getY();}
+    public double getW(){return shape.getWidth();}
+    public double getH(){return shape.getHeight();}
+  
+    public boolean collidesWith(double x, double y, double r){
+         double left = getX();
+         double right = getX() + getW();
+         double top = getY();
+         double bottom = getY() + getH();
+         
+         return (x + r > left && x - r < right && y + r > top && y - r < bottom);
+    }
+
 
 }
