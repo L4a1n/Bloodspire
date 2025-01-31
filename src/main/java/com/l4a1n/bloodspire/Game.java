@@ -50,6 +50,14 @@ public class Game {
 
     private void setupWalls(){
         walls = new ArrayList<>();
+        
+        walls.add(new Wall(100, 200, 30, 80));
+        walls.add(new Wall(200, 100, 80, 30));
+        walls.add(new Wall(260, 130, 20, 120));
+    
+        for (Wall wall : walls){
+          gamePane.getChildren().add(wall.getShape());
+        }
 
     }
 

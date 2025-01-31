@@ -25,8 +25,8 @@ public class Monster {
         double dy = targetY - shape.getCenterY();
         double distance = Math.sqrt(dx * dx + dy * dy);
 
-        // Der Part sorgt dafür das die Monster nicht auf dem Player sitzen, sondern den "Personal Space" des Players berücksichtigen
-        if (distance > 30) {
+        
+        if (distance > 30) {    // Der Part sorgt dafür das die Monster nicht auf dem Player sitzen, sondern den "Personal Space" des Players berücksichtigen
             double moveX = dx / distance * SPEED;
             double moveY = dy / distance * SPEED;
 
