@@ -123,7 +123,7 @@ public class Game {
             public void handle(long now) {
                 player.update(); // Spielerbewegung
                 for (Monster monster : monsters) {
-                    monster.moveTowards(player.getX(), player.getY(), monsters);
+                    monster.moveTowards(player.getX(), player.getY(), monsters, walls);
                 }
             }
         };

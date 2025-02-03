@@ -20,7 +20,7 @@ public class Monster {
     public double getX(){return shape.getCenterX();}                // return X Koordinate proportional von der Mitte der Figur
     public double getY(){return shape.getCenterY();}                // return Y Koordinate proportional von der Mitte der Figur
 
-    public void moveTowards(double targetX, double targetY, List<Monster> monsters) {
+    public void moveTowards(double targetX, double targetY, List<Monster> monsters, List<Wall> walls) {
         double dx = targetX - shape.getCenterX();
         double dy = targetY - shape.getCenterY();
         double distance = Math.sqrt(dx * dx + dy * dy);
@@ -42,8 +42,24 @@ public class Monster {
                     moveY += diffY / otherDistance * 0.5;
                 }
             }
-            shape.setCenterX(getX() + moveX);
-            shape.setCenterY(getY() + moveY);
+            double newX = getX() + moveX;
+            double newY = getY() + moveY;
+            
+            if (!collidesWithWall(newX, newY, walls)) {
+               shape.setCenterX(getX() + moveX);
+               shape.setCenterY(getY() + moveY); 
+            } // end of if
+            
         }
     }
+  
+    public boolean collidesWithWall(double x, double y, List<Wall> walls){
+          for(Wall wall : walls){
+            if (wall.collidesWith(x, y, 20)) {
+              return true;
+            } // end of if
+          }
+          return false;
+    }
+
 }
