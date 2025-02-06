@@ -119,11 +119,19 @@ public class Game {
 
     private void startGameLoop() {
         AnimationTimer gameLoop = new AnimationTimer() {
+            private long lastUpdate = 0;
+
             @Override
             public void handle(long now) {
+                if (now - lastUpdate > 500_000_000){
+                    for (Monster monster : monsters){
+                        monster.updatePath(player.getX(), player.getY(), walls);
+                    }
+                    lastUpdate = now;
+                }
                 player.update(); // Spielerbewegung
                 for (Monster monster : monsters) {
-                    monster.moveTowards(player.getX(), player.getY(), monsters, walls);
+                    monster.moveAlongPath();
                 }
             }
         };
