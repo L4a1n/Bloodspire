@@ -8,8 +8,8 @@ import javafx.stage.Stage;
 public class Bloodspire extends Application {
     @Override
     public void start(Stage stage) {
-        Game game = new Game(); // Hauptspiel-Logik
-        Pane gamePane = game.getGamePane(); // Spielbereich
+        Level level = new Level(); // Hauptspiel-Logik
+        Pane gamePane = level.getGamePane(); // Spielbereich
 
         Scene scene = new Scene(gamePane, 800, 800); // Spielszene
         stage.setTitle("Bloodspire");

@@ -14,12 +14,14 @@ public class Wall {
         shape.setHeight(h);
     }
 
+    // Getter Methoden
     public Rectangle getShape(){return shape;}
     public double getX(){return shape.getX();}
     public double getY(){return shape.getY();}
     public double getW(){return shape.getWidth();}
     public double getH(){return shape.getHeight();}
-  
+
+    // Collisionsmethode kann von anderen Klassen benutzt werden um zurück zu geben ob sie mit der Wand kollidieren.
     public boolean collidesWith(double x, double y, double r){
          double left = getX();
          double right = getX() + getW();

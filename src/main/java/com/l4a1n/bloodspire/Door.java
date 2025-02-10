@@ -9,6 +9,7 @@ public class Door {
     public Door(int side, double position) {
         shape = new Rectangle(40, 10, Color.BROWN);
 
+        // Verändert die Position und Orientation der Tür je nach ausgewählter Seite
         switch (side) {
             case 0 -> { // Oben
                 shape.setX(position);
@@ -33,6 +34,7 @@ public class Door {
         }
     }
 
+    // Getter-Methode
     public Rectangle getShape() {
         return shape;
     }
