@@ -9,7 +9,7 @@ public class Player {
     private Circle shape;
     private double targetX;
     private double targetY;
-    private int SPEED = 2;
+    private int SPEED = 3;
     private int maxHealth = 100;    // ist noch unbenutzt
     private int radius = 20;
 

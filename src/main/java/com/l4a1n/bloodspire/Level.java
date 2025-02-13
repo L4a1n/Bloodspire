@@ -68,12 +68,24 @@ public class Level {
 
     private void setupMonsters() {
         monsters = new ArrayList<>();
-        int monsterCount = random.nextInt(4) + 2; // 2-4 Monster
-
+        int monsterCount = 4; // 2-4 Monster
         for (int i = 0; i < monsterCount; i++) {
-            Monster monster = new Monster(random.nextInt(700) + 50, random.nextInt(700) + 50);
-            monsters.add(monster);
-            gamePane.getChildren().add(monster.getShape());
+            boolean again = false;
+            double x = random.nextDouble(700)+50;
+            double y = random.nextDouble(700)+50;
+            for (Wall wall : walls){
+                if (x+20 >= wall.getX() && x-20 <= wall.getX()+wall.getW() && y+20 >= wall.getY() && y-20 <= wall.getY()+ wall.getH()){     // Checkt ob die Spawn-Koordinaten auf den Wänden liegen damit die Monster nicht auf den Wänden spawnen
+                    System.out.println("Oh oh");
+                    i -= 1;     // Wenn ja, dann reduziert es den Iterations-Zähler um 1 und unterbricht den for-loop
+                    again = true;
+                    break;
+                }
+            }
+            if (!again){
+                Monster monster = new Monster(x, y);
+                monsters.add(monster);
+                gamePane.getChildren().add(monster.getShape());
+            }
         }
     }
 
