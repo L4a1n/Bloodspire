@@ -25,6 +25,7 @@ public class Player {
     public Circle getShape() {return shape;}                    // Gibt die ganze Figur zurück. Nützlich für Kollision oder ähnliches.
     public double getX() {return shape.getCenterX();}           // return X Koordinate proportional von der Mitte der Figur.
     public double getY() {return shape.getCenterY();}           // return Y Koordinate proportional von der Mitte der Figur.
+    public int getHealth(){return health;}
 
     // Der Target setzer. Er macht was er sagt, er setzt das neue Ziel das der Spieler verfolgen soll.
     public void setTarget(double x, double y) {
@@ -36,15 +37,19 @@ public class Player {
         double dx = targetX - getX();
         double dy = targetY - getY();
         double distance = Math.sqrt(dx * dx + dy * dy);
+        double moveX = 0;
+        double moveY = 0;
+        if (distance > 4){
+            moveX = (dx / distance) * SPEED * dTime;
+            moveY = (dy / distance) * SPEED * dTime;
+        }
 
         boolean collideX = false, collideY = false;
         for (Wall wall : walls){
-            if (wall.collidesWith(getX() + dx, getY(), radius)) collideX = true;
-            if (wall.collidesWith(getX(), getY() + dy, radius)) collideY = true;
+            if (wall.collidesWith(getX() + moveX, getY(), radius)) collideX = true;
+            if (wall.collidesWith(getX(), getY() + moveY, radius)) collideY = true;
         }
-        if (distance > 4) {         // Setzt voraus das die Distanz zum Ziel mindestens größer als 4 sein muss damit der Spieler sich bewegt.
-            if (!collideX) shape.setCenterX(getX() + dx / distance * SPEED * dTime);       // Verändert die X Position relativ zum Ziel hin.
-            if (!collideY) shape.setCenterY(getY() + dy / distance * SPEED * dTime);       // Verändert die Y Position relativ zum Ziel hin.
-        }
+        if (!collideX) shape.setCenterX(getX() + moveX);       // Verändert die X Position relativ zum Ziel hin.
+        if (!collideY) shape.setCenterY(getY() + moveY);       // Verändert die Y Position relativ zum Ziel hin.
     }
 }

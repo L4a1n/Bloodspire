@@ -10,15 +10,16 @@ public class Monster {
     private static final double AVOID_DISTANCE = 40;        // Abstand der zu andern Entitäten eingehalten werden soll
     private int health;
     private boolean alive;
-    private double radius;
+    private double radius = 20;
+    private int id;
 
-    public Monster(double x, double y, double r) {
-        this.radius = r;
+    public Monster(double x, double y, int id) {
         shape = new Circle(radius, Color.RED);
         shape.setCenterX(x);
         shape.setCenterY(y);
         health = 100;
         alive = true;
+        this.id = id;
 
     }
 
@@ -29,6 +30,7 @@ public class Monster {
     public double X(){return shape.getCenterX()-radius;}
     public double Y(){return shape.getCenterY()-radius;}
     public boolean isAlive(){return alive;}
+    public int getId(){return id;}
 
     // Positions- und Collisions Update-Methode
     public void moveTowards(double targetX, double targetY, List<Monster> monsters, List<Wall> walls, double dTime) {

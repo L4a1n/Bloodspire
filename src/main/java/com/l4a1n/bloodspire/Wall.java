@@ -28,7 +28,7 @@ public class Wall {
          double top = getY();
          double bottom = getY() + getH();
          
-         return (x + r > left && x - r < right && y + r > top && y - r < bottom);
+         return (x + r >= left && x - r <= right && y + r >= top && y - r <= bottom);
     }
 
 

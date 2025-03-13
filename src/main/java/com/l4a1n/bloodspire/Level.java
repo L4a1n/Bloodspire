@@ -17,6 +17,7 @@ public class Level {
     private Player player;
     private List<Monster> monsters;
     private List<Door> doors;
+    private List<Healthbar> healthbars;
     private Chest chest;
     private Random random;
 
@@ -68,6 +69,8 @@ public class Level {
 
     private void setupMonsters() {
         monsters = new ArrayList<>();
+        healthbars = new ArrayList<>();
+
         int monsterCount = 4; // 2-4 Monster
         for (int i = 0; i < monsterCount; i++) {
             boolean again = false;
@@ -82,9 +85,13 @@ public class Level {
                 }
             }
             if (!again){
-                Monster monster = new Monster(x, y, 20);
+                Monster monster = new Monster(x, y, i);
                 monsters.add(monster);
                 gamePane.getChildren().add(monster.getShape());
+                Healthbar healthbar = new Healthbar(x-20,y-20, i);
+                healthbars.add(healthbar);
+                gamePane.getChildren().add(healthbar.getBg());
+                gamePane.getChildren().add(healthbar.getVg());
             }
         }
     }
@@ -130,13 +137,15 @@ public class Level {
         // Wenn der Spieler auf das Monster klickt wird es angegriffen
         gamePane.setOnMouseClicked((MouseEvent event) -> {
             if (event.getButton() == MouseButton.SECONDARY){
-                System.out.println("pressed");
                 for (Monster monster : monsters){
-                    System.out.println("Monster:"+monster);
-                    System.out.println("Event:("+event.getX()+","+event.getY()+") Monster:("+monster.getX()+","+monster.getY()+")");
                     if ((event.getX() >= monster.X() && event.getX() <= monster.X()+40) && (event.getY() >= monster.Y() && event.getY() <= monster.Y()+40)){
-                        System.out.println("Hit!!");
-                        monster.kill(100);
+                        monster.kill(25);
+                        for (Healthbar hb : healthbars){
+                            if (monster.getId() == hb.getId()){
+                                hb.decHealth(25);
+                                return;
+                            }
+                        }
                     }
                 }
             }
@@ -162,6 +171,9 @@ public class Level {
                 for (Monster monster : monsters) {
                     if (monster.isAlive()){
                         monster.moveTowards(player.getX(), player.getY(), monsters, walls, dTime);
+                        for (Healthbar hb : healthbars){
+                            if (monster.getId() == hb.getId()) hb.setPos(monster.getX(), monster.getY());
+                        }
                     }
                 }
             }
