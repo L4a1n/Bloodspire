@@ -82,7 +82,7 @@ public class Level {
                 }
             }
             if (!again){
-                Monster monster = new Monster(x, y);
+                Monster monster = new Monster(x, y, 20);
                 monsters.add(monster);
                 gamePane.getChildren().add(monster.getShape());
             }
@@ -127,6 +127,20 @@ public class Level {
                 player.setTarget(targetX, targetY); // Zielposition setzen
             }
         });
+        // Wenn der Spieler auf das Monster klickt wird es angegriffen
+        gamePane.setOnMouseClicked((MouseEvent event) -> {
+            if (event.getButton() == MouseButton.SECONDARY){
+                System.out.println("pressed");
+                for (Monster monster : monsters){
+                    System.out.println("Monster:"+monster);
+                    System.out.println("Event:("+event.getX()+","+event.getY()+") Monster:("+monster.getX()+","+monster.getY()+")");
+                    if ((event.getX() >= monster.X() && event.getX() <= monster.X()+40) && (event.getY() >= monster.Y() && event.getY() <= monster.Y()+40)){
+                        System.out.println("Hit!!");
+                        monster.kill(100);
+                    }
+                }
+            }
+        });
     }
 
     private void startGameLoop() {
@@ -146,7 +160,9 @@ public class Level {
                 lastUpdate = now;
                 player.update(dTime, walls); // Spielerbewegung
                 for (Monster monster : monsters) {
-                    monster.moveTowards(player.getX(), player.getY(), monsters, walls, dTime);
+                    if (monster.isAlive()){
+                        monster.moveTowards(player.getX(), player.getY(), monsters, walls, dTime);
+                    }
                 }
             }
         };

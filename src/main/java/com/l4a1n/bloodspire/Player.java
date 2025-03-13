@@ -10,7 +10,7 @@ public class Player {
     private double targetX;
     private double targetY;
     private int SPEED = 3;
-    private int maxHealth = 100;    // ist noch unbenutzt
+    private int health = 100;    // ist noch unbenutzt
     private int radius = 20;
 
     public Player(double x, double y) {

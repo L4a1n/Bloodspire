@@ -8,17 +8,27 @@ public class Monster {
     private Circle shape;
     private static final double SPEED = 1.0;        // Geschwindigkeit des Monsters
     private static final double AVOID_DISTANCE = 40;        // Abstand der zu andern Entitäten eingehalten werden soll
+    private int health;
+    private boolean alive;
+    private double radius;
 
-    public Monster(double x, double y) {
-        shape = new Circle(20, Color.RED);
+    public Monster(double x, double y, double r) {
+        this.radius = r;
+        shape = new Circle(radius, Color.RED);
         shape.setCenterX(x);
         shape.setCenterY(y);
+        health = 100;
+        alive = true;
+
     }
 
     // Getters
     public Circle getShape() {return shape;}        // Gibt das Objekt Circle zurück
     public double getX(){return shape.getCenterX();}                // return X Koordinate proportional von der Mitte der Figur
     public double getY(){return shape.getCenterY();}                // return Y Koordinate proportional von der Mitte der Figur
+    public double X(){return shape.getCenterX()-radius;}
+    public double Y(){return shape.getCenterY()-radius;}
+    public boolean isAlive(){return alive;}
 
     // Positions- und Collisions Update-Methode
     public void moveTowards(double targetX, double targetY, List<Monster> monsters, List<Wall> walls, double dTime) {
@@ -46,11 +56,20 @@ public class Monster {
 
         boolean collideX = false, collideY = false;     // Kollisions Attribute
         for (Wall wall : walls){
-            if (wall.collidesWith(getX() + moveX, getY(), 20)) collideX = true;     // Kollision auf X dann True
-            if (wall.collidesWith(getX(), getY() + moveY, 20)) collideY = true;     // Kollision auf Y dann True
+            if (wall.collidesWith(getX() + moveX, getY(), radius)) collideX = true;     // Kollision auf X dann True
+            if (wall.collidesWith(getX(), getY() + moveY, radius)) collideY = true;     // Kollision auf Y dann True
         }
         if (!collideX) shape.setCenterX(getX() + moveX);    // Wenn auf X keine Kollision dann bewegen auf X möglich
         if (!collideY) shape.setCenterY(getY() + moveY);    // Wenn auf Y keine Kollision dann bewegen auf Y möglich
+    }
+
+    public void kill(int damage){
+        System.out.println(health);
+        health -= damage;
+        if (health <= 0){
+            shape.setFill(Color.YELLOW);
+            alive = false;
+        }
     }
 
 }
