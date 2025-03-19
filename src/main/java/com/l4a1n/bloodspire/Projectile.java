@@ -34,7 +34,7 @@ public class Projectile {
     public long getAliveUntil(){return aliveUntil;}
     public double getX(){return shape.getCenterX();}
     public double getY(){return shape.getCenterY();}
-    public void setAliveUntil(long time){aliveUntil = time + 2000000000;} // + 2 Sekunden
+    public void setAliveUntil(long time){aliveUntil = time + 2000000000L;} // + 2 Sekunden
     public void setTarget(Monster target){targets.add(target);}
     public List<Monster> getTargets(){return targets;}
 

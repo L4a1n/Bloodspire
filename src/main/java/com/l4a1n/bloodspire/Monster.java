@@ -72,7 +72,7 @@ public class Monster {
         if (health <= 0){
             shape.setFill(Color.YELLOW);
             alive = false;
-            deadSince = time + 1000000000;
+            deadSince = time + 10000000000L;
         }
     }
 
