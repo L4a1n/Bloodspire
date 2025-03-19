@@ -23,6 +23,7 @@ public class Chest {
     public Rectangle getShape() {
         return shape;
     }
+    public String getItem(){return item;}
 
     private String generateRandomItem() {
         List<String> items = Arrays.asList("Schwert", "Schild", "Heiltrank", "Schatz");

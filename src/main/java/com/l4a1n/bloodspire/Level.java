@@ -18,6 +18,7 @@ public class Level {
     private List<Monster> monsters;
     private List<Door> doors;
     private List<Healthbar> healthbars;
+    private List<Projectile> projectiles = new ArrayList<>();
     private Chest chest;
     private Random random;
 
@@ -137,17 +138,9 @@ public class Level {
         // Wenn der Spieler auf das Monster klickt wird es angegriffen
         gamePane.setOnMouseClicked((MouseEvent event) -> {
             if (event.getButton() == MouseButton.SECONDARY){
-                for (Monster monster : monsters){
-                    if ((event.getX() >= monster.X() && event.getX() <= monster.X()+40) && (event.getY() >= monster.Y() && event.getY() <= monster.Y()+40)){
-                        monster.kill(25);
-                        for (Healthbar hb : healthbars){
-                            if (monster.getId() == hb.getId()){
-                                hb.decHealth(25);
-                                return;
-                            }
-                        }
-                    }
-                }
+                Projectile projectile = new Projectile(player.getX(), player.getY(), event.getX(), event.getY());
+                projectiles.add(projectile);
+                gamePane.getChildren().add(projectile.getShape());
             }
         });
     }
@@ -162,9 +155,23 @@ public class Level {
                     lastUpdate = now;
                     return;
                 }
+
+                double dTime = (now - lastUpdate) / 10_000_000.0;
+
+                for (Projectile projectile : projectiles){
+                    if (projectile.getAliveUntil() == 0){   // Wenn die Zeit 0 ist dann wird die aktuelle Zeit gesetzt
+                        projectile.setAliveUntil(now);
+                        continue;
+                    }
+                    if (projectile.getAliveUntil() <= now){     // Wenn die Zeit zu leben überschritten ist dann wird es gelöscht
+                        gamePane.getChildren().remove(projectile.getShape());
+                        projectiles.remove(projectile);
+                        return;
+                    }
+                    projectile.update(dTime, walls);
+                }
                 // Rechnet DeltaTime aus (die Zeit die Seit dem letzen Frame vergangen ist)
                 // Wird benutzt um die Geschwindigkeit anzupassen, sodass die Bewwegung Framerate-unabhängig ist
-                double dTime = (now - lastUpdate) / 10_000_000.0;
 
                 lastUpdate = now;
                 player.update(dTime, walls); // Spielerbewegung
@@ -173,6 +180,23 @@ public class Level {
                         monster.moveTowards(player.getX(), player.getY(), monsters, walls, dTime);
                         for (Healthbar hb : healthbars){
                             if (monster.getId() == hb.getId()) hb.setPos(monster.getX(), monster.getY());
+                        }
+                        for (Projectile projectile : projectiles){
+                            if ((projectile.getX() >= monster.X() && projectile.getX() <= monster.X()+40) && (projectile.getY() >= monster.Y() && projectile.getY() <= monster.Y()+40) && !projectile.getTargets().contains(monster)) {
+                                monster.kill(25, now);
+                                projectile.setTarget(monster);
+                                for (Healthbar hb : healthbars){
+                                    if (monster.getId() == hb.getId()){
+                                        hb.decHealth(25);
+                                        return;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        if (monster.getDeadSince() <= now){
+                            gamePane.getChildren().remove(monster.getShape());
                         }
                     }
                 }

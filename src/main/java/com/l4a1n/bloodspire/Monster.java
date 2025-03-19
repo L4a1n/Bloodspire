@@ -12,6 +12,7 @@ public class Monster {
     private boolean alive;
     private double radius = 20;
     private int id;
+    private long deadSince;
 
     public Monster(double x, double y, int id) {
         shape = new Circle(radius, Color.RED);
@@ -31,6 +32,7 @@ public class Monster {
     public double Y(){return shape.getCenterY()-radius;}
     public boolean isAlive(){return alive;}
     public int getId(){return id;}
+    public long getDeadSince(){return deadSince;}
 
     // Positions- und Collisions Update-Methode
     public void moveTowards(double targetX, double targetY, List<Monster> monsters, List<Wall> walls, double dTime) {
@@ -65,12 +67,12 @@ public class Monster {
         if (!collideY) shape.setCenterY(getY() + moveY);    // Wenn auf Y keine Kollision dann bewegen auf Y möglich
     }
 
-    public void kill(int damage){
-        System.out.println(health);
+    public void kill(int damage, long time){
         health -= damage;
         if (health <= 0){
             shape.setFill(Color.YELLOW);
             alive = false;
+            deadSince = time + 1000000000;
         }
     }
 
