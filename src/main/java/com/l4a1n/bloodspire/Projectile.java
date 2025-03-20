@@ -23,6 +23,7 @@ public class Projectile {
         aliveUntil = 0;
         targets = new ArrayList<>();
 
+        // Berechnet beim erstellen des Objekts die Richtung in die es sich bewegen soll
         double dx = targetX - x;
         double dy = targetY - y;
         double distance = Math.sqrt(dx * dx + dy * dy);
@@ -40,10 +41,10 @@ public class Projectile {
 
     public void update(double dTime, List<Wall> walls){
         boolean collide = false;
-        for (Wall wall : walls){
+        for (Wall wall : walls){    // Checkt ob es mit irgendwelchen Wänden kollidiert
             if (wall.collidesWith(getX(), getY(), radius)) collide = true;
         }
-        if (!collide){
+        if (!collide && getTargets().size() < 2){   // Wenn es nicht mit Wänden kollidiert und die Anzahl der Treffer kleiner wie 2 ist dann bewegt es sich
             shape.setCenterX(getX() + directionX * dTime * SPEED);
             shape.setCenterY(getY() + directionY * dTime * SPEED);
         }

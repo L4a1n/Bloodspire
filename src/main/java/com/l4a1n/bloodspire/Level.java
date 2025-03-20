@@ -151,6 +151,9 @@ public class Level {
 
             @Override
             public void handle(long now) {
+                if (monsters.isEmpty()){
+                    setupMonsters();
+                }
                 if (lastUpdate == 0){
                     lastUpdate = now;
                     return;
@@ -197,6 +200,8 @@ public class Level {
                     else {
                         if (monster.getDeadSince() <= now){
                             gamePane.getChildren().remove(monster.getShape());
+                            monsters.remove(monster);
+                            return;
                         }
                     }
                 }
