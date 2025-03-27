@@ -56,6 +56,7 @@ public class Level {
         walls.add(new Wall(100, 200, 30, 80));
         walls.add(new Wall(200, 100, 80, 30));
         walls.add(new Wall(260, 130, 20, 120));
+        walls.add(new Wall(30, 500, 800, 800));
     
         for (Wall wall : walls){
           gamePane.getChildren().add(wall.getShape());
@@ -85,7 +86,7 @@ public class Level {
                     break;
                 }
             }
-            if (!again){
+            if (!again){    // Wenn die Koordinaten in Ordnung sind dann werden Monster erstellt
                 Monster monster = new Monster(x, y, i);
                 monsters.add(monster);
                 gamePane.getChildren().add(monster.getShape());
@@ -177,20 +178,20 @@ public class Level {
                 // Wird benutzt um die Geschwindigkeit anzupassen, sodass die Bewwegung Framerate-unabhängig ist
 
                 lastUpdate = now;
-                player.update(dTime, walls); // Spielerbewegung
+                player.update(dTime, walls); // Spielerupdate
                 for (Monster monster : monsters) {
                     if (monster.isAlive()){
-                        monster.moveTowards(player.getX(), player.getY(), monsters, walls, dTime);
+                        monster.moveTowards(player.getX(), player.getY(), monsters, walls, dTime);  // Sofern ein Monster am Leben ist bewegt es sich
                         for (Healthbar hb : healthbars){
-                            if (monster.getId() == hb.getId()) hb.setPos(monster.getX(), monster.getY());
+                            if (monster.getId() == hb.getId()) hb.setPos(monster.getX(), monster.getY());   // Der Healthbar bewegt sich mit dem Monster mit
                         }
-                        for (Projectile projectile : projectiles){
+                        for (Projectile projectile : projectiles){  // Überprüft die Kollision von Projektilen und Monstern
                             if ((projectile.getX() >= monster.X() && projectile.getX() <= monster.X()+40) && (projectile.getY() >= monster.Y() && projectile.getY() <= monster.Y()+40) && !projectile.getTargets().contains(monster)) {
-                                monster.kill(25, now);
-                                projectile.setTarget(monster);
+                                monster.kill(player.getDamage(), now);  // Monster bekommt schaden
+                                projectile.setTarget(monster);  // getroffenes Monster wird einer Liste des Projektils hinzugefügt
                                 for (Healthbar hb : healthbars){
                                     if (monster.getId() == hb.getId()){
-                                        hb.decHealth(25);
+                                        hb.decHealth(player.getDamage());   // reduziert den Healthbar
                                         return;
                                     }
                                 }

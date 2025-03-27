@@ -12,6 +12,7 @@ public class Player {
     private int SPEED = 3;
     private int health = 100;    // ist noch unbenutzt
     private int radius = 20;
+    private int damage = 10;
 
     public Player(double x, double y) {
         shape = new Circle(radius, Color.BLUE);
@@ -26,6 +27,9 @@ public class Player {
     public double getX() {return shape.getCenterX();}           // return X Koordinate proportional von der Mitte der Figur.
     public double getY() {return shape.getCenterY();}           // return Y Koordinate proportional von der Mitte der Figur.
     public int getHealth(){return health;}
+    public int getDamage(){return damage;}
+
+    public void setDamage(int damage){this. damage = damage;}
 
     // Der Target setzer. Er macht was er sagt, er setzt das neue Ziel das der Spieler verfolgen soll.
     public void setTarget(double x, double y) {
