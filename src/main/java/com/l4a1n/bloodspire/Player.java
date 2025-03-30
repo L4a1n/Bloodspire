@@ -10,9 +10,9 @@ public class Player {
     private double targetX;
     private double targetY;
     private int SPEED = 3;
-    private int health = 100;    // ist noch unbenutzt
+    private int health = 500;    // ist noch unbenutzt
     private int radius = 20;
-    private int damage = 10;
+    private int damage = 60;
 
     public Player(double x, double y) {
         shape = new Circle(radius, Color.BLUE);
@@ -26,8 +26,11 @@ public class Player {
     public Circle getShape() {return shape;}                    // Gibt die ganze Figur zurück. Nützlich für Kollision oder ähnliches.
     public double getX() {return shape.getCenterX();}           // return X Koordinate proportional von der Mitte der Figur.
     public double getY() {return shape.getCenterY();}           // return Y Koordinate proportional von der Mitte der Figur.
+    public double X(){return shape.getCenterX() - radius;}
+    public double Y(){return shape.getCenterY() - radius;}
     public int getHealth(){return health;}
     public int getDamage(){return damage;}
+    public void decHealth(int damage){health -= damage;}
 
     public void setDamage(int damage){this. damage = damage;}
 

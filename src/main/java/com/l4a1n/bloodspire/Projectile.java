@@ -15,13 +15,15 @@ public class Projectile {
     private double directionX;
     private double directionY;
     private static final double SPEED = 10;
+    private int source;
 
-    public Projectile(double x, double y, double targetX, double targetY){
+    public Projectile(double x, double y, double targetX, double targetY, int source){
         shape = new Circle(radius, Color.RED);
         shape.setCenterX(x);
         shape.setCenterY(y);
         aliveUntil = 0;
         targets = new ArrayList<>();
+        this.source = source;
 
         // Berechnet beim erstellen des Objekts die Richtung in die es sich bewegen soll
         double dx = targetX - x;
@@ -38,6 +40,7 @@ public class Projectile {
     public void setAliveUntil(long time){aliveUntil = time + 2000000000L;} // + 2 Sekunden
     public void setTarget(Monster target){targets.add(target);}
     public List<Monster> getTargets(){return targets;}
+    public int getSource(){return source;}
 
     public void update(double dTime, List<Wall> walls){
         boolean collide = false;

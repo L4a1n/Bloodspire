@@ -9,11 +9,19 @@ public class Healthbar {
     private double w;
     private double h;
     private int id;
+    private int health;
 
-    public Healthbar(double x, double y, int id){
+    public Healthbar(double x, double y, int health, int id){
         this.id = id;
-        w = 50;
-        h = 10;
+        this.health = health;
+        if (id == 0){
+            w = 300;
+            h = 70;
+        }
+        else {
+            w = 50;
+            h = 10;
+        }
         bg = new Rectangle(w,h, Color.BLACK);
         bg.setX(x);
         bg.setY(y);
@@ -27,13 +35,14 @@ public class Healthbar {
     public int getId(){return id;}
 
     public void setPos(double newX, double newY){
-        bg.setX(newX-20);
+        bg.setX(newX-25);
         bg.setY(newY-20);
-        vg.setX(newX-20);
+        vg.setX(newX-25);
         vg.setY(newY-20);
     }
-    public void decHealth(double health){
-        vg.setWidth((vg.getWidth())-(bg.getWidth()*(health/100)));
+    public void decHealth(double damage){
+        System.out.println("Decreasing: " + id);
+        vg.setWidth(vg.getWidth()-(bg.getWidth()*(damage/health)));
         if (vg.getWidth() <= 0) bg.setFill(Color.TRANSPARENT);
     }
 }

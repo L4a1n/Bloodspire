@@ -6,22 +6,43 @@ import java.util.List;
 
 public class Monster {
     private Circle shape;
-    private static final double SPEED = 1.0;        // Geschwindigkeit des Monsters
+    private double SPEED = 1.0;        // Geschwindigkeit des Monsters
     private static final double AVOID_DISTANCE = 40;        // Abstand der zu andern Entitäten eingehalten werden soll
     private int health;
     private boolean alive;
     private double radius = 20;
     private int id;
     private long deadSince;
+    private boolean attacking;
+    private int damage;
+    private int kind;
+    private int range;
+    private long attackCooldown = 0;
+    private long cooldown;
 
-    public Monster(double x, double y, int id) {
+    public Monster(double x, double y, int id, int kind) {
         shape = new Circle(radius, Color.RED);
         shape.setCenterX(x);
         shape.setCenterY(y);
-        health = 100;
         alive = true;
         this.id = id;
-
+        this.kind = kind;
+        switch (kind){
+            case 1:
+                health = 100;
+                damage = 30;
+                range = 40;
+                cooldown = 10000000;
+                break;
+            case 2:
+                health = 200;
+                damage = 50;
+                shape.setFill(Color.DARKRED);
+                SPEED = 0.6;
+                range = 300;
+                cooldown = 1000000000;
+                break;
+        }
     }
 
     // Getters
@@ -33,12 +54,21 @@ public class Monster {
     public boolean isAlive(){return alive;}
     public int getId(){return id;}
     public long getDeadSince(){return deadSince;}
+    public int getHealth(){return health;}
+    public boolean getAttacking(){return attacking;}
+    public int getDamage(){return damage;}
+    public int getKind(){return kind;}
+    public void setAttackCooldown(long timeNow){attackCooldown = timeNow + cooldown;}
+    public long getAttackCooldown(){return attackCooldown;}
 
     // Positions- und Collisions Update-Methode
     public void moveTowards(double targetX, double targetY, List<Monster> monsters, List<Wall> walls, double dTime) {
         double dx = targetX - shape.getCenterX();   // X Differenz zu Target
         double dy = targetY - shape.getCenterY();   // Y Differenz zu Target
         double distance = Math.sqrt(dx * dx + dy * dy);     // Rechnet die Distanz zu Target aus
+
+        if (distance <= range && alive){attacking = true;}
+        else {attacking = false;}
 
         if (distance < AVOID_DISTANCE) return;      // Bricht ab hier ab, wenn die Distanz zu Target kleiner als AVOID_DISTANCE ist
 
@@ -72,7 +102,7 @@ public class Monster {
         if (health <= 0){
             shape.setFill(Color.YELLOW);
             alive = false;
-            deadSince = time + 10000000000L;
+            deadSince = time + 1000000000L;
         }
     }
 

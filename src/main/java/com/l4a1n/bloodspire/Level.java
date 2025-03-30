@@ -27,6 +27,8 @@ public class Level {
         gamePane.setStyle("-fx-background-color: lightgray;");
         random = new Random();
 
+        healthbars = new ArrayList<>();
+
         setupRoom();
         setupWalls();
         setupPlayer();
@@ -43,10 +45,10 @@ public class Level {
 
     private void setupRoom() {
         // Raumbegrenzungen
+        // Der Part hier muss mit was sinnvollem ersetzt werden...
+        // Wird es überhaupt noch gebraucht ?
         Rectangle room = new Rectangle(800, 800);
         room.setFill(Color.LIGHTGRAY);
-        room.setStroke(Color.BLACK);
-        room.setStrokeWidth(5);
         gamePane.getChildren().add(room);
     }
 
@@ -56,7 +58,10 @@ public class Level {
         walls.add(new Wall(100, 200, 30, 80));
         walls.add(new Wall(200, 100, 80, 30));
         walls.add(new Wall(260, 130, 20, 120));
-        walls.add(new Wall(30, 500, 800, 800));
+        walls.add(new Wall(0, 990, 1200, 10)); // Unten
+        walls.add(new Wall(0, 0, 1200,10)); // Oben
+        walls.add(new Wall(0, 0, 10, 1000)); // Links
+        walls.add(new Wall(1190, 0, 10, 1000)); // Rechts
     
         for (Wall wall : walls){
           gamePane.getChildren().add(wall.getShape());
@@ -67,11 +72,15 @@ public class Level {
     private void setupPlayer() {
         player = new Player(400, 400);
         gamePane.getChildren().add(player.getShape());
+        Healthbar healthbar = new Healthbar(50, 1000, player.getHealth(), 0);
+        healthbars.add(healthbar);
+        gamePane.getChildren().add(healthbar.getBg());
+        gamePane.getChildren().add(healthbar.getVg());
     }
 
     private void setupMonsters() {
         monsters = new ArrayList<>();
-        healthbars = new ArrayList<>();
+
 
         int monsterCount = 4; // 2-4 Monster
         for (int i = 0; i < monsterCount; i++) {
@@ -87,13 +96,15 @@ public class Level {
                 }
             }
             if (!again){    // Wenn die Koordinaten in Ordnung sind dann werden Monster erstellt
-                Monster monster = new Monster(x, y, i);
+                int kind = random.nextInt(2)+1;
+                Monster monster = new Monster(x, y, i+1, kind);
                 monsters.add(monster);
                 gamePane.getChildren().add(monster.getShape());
-                Healthbar healthbar = new Healthbar(x-20,y-20, i);
+                Healthbar healthbar = new Healthbar(x-20,y-20,monster.getHealth() , i+1);
                 healthbars.add(healthbar);
                 gamePane.getChildren().add(healthbar.getBg());
                 gamePane.getChildren().add(healthbar.getVg());
+                System.out.println(healthbar.getId());
             }
         }
     }
@@ -139,7 +150,7 @@ public class Level {
         // Wenn der Spieler auf das Monster klickt wird es angegriffen
         gamePane.setOnMouseClicked((MouseEvent event) -> {
             if (event.getButton() == MouseButton.SECONDARY){
-                Projectile projectile = new Projectile(player.getX(), player.getY(), event.getX(), event.getY());
+                Projectile projectile = new Projectile(player.getX(), player.getY(), event.getX(), event.getY(), 0);
                 projectiles.add(projectile);
                 gamePane.getChildren().add(projectile.getShape());
             }
@@ -179,18 +190,42 @@ public class Level {
 
                 lastUpdate = now;
                 player.update(dTime, walls); // Spielerupdate
+                for (Projectile projectile : projectiles){
+                    if (projectile.getSource() == 0) continue;
+                    if ((projectile.getX() >= player.X() && projectile.getX() <= player.X()+40) && (projectile.getY() >= player.Y() && projectile.getY() <= player.Y()+40)){
+                        player.decHealth(5);
+                        for (Healthbar hb : healthbars){
+                            if (hb.getId() != 0) continue;
+                            hb.decHealth(5);
+                        }
+                    }
+                }
                 for (Monster monster : monsters) {
                     if (monster.isAlive()){
                         monster.moveTowards(player.getX(), player.getY(), monsters, walls, dTime);  // Sofern ein Monster am Leben ist bewegt es sich
+                        switch (monster.getKind()){     // Monster attackieren je nach Kind of Monster
+                            case 2:
+                                if (monster.getAttacking() && monster.getAttackCooldown() <= now){
+                                    Projectile projectile = new Projectile(monster.getX(), monster.getY(), player.getX(), player.getY(), 1);
+                                    projectiles.add(projectile);
+                                    gamePane.getChildren().add(projectile.getShape());
+                                    monster.setAttackCooldown(now);
+                                }
+                                break;
+                            case 1:
+                                break;
+                        }
                         for (Healthbar hb : healthbars){
                             if (monster.getId() == hb.getId()) hb.setPos(monster.getX(), monster.getY());   // Der Healthbar bewegt sich mit dem Monster mit
                         }
                         for (Projectile projectile : projectiles){  // Überprüft die Kollision von Projektilen und Monstern
+                            if (projectile.getSource() == 1) continue;
                             if ((projectile.getX() >= monster.X() && projectile.getX() <= monster.X()+40) && (projectile.getY() >= monster.Y() && projectile.getY() <= monster.Y()+40) && !projectile.getTargets().contains(monster)) {
                                 monster.kill(player.getDamage(), now);  // Monster bekommt schaden
                                 projectile.setTarget(monster);  // getroffenes Monster wird einer Liste des Projektils hinzugefügt
                                 for (Healthbar hb : healthbars){
                                     if (monster.getId() == hb.getId()){
+                                        System.out.println("MonsterID: "+monster.getId()+" HealthbarID: "+ hb.getId());
                                         hb.decHealth(player.getDamage());   // reduziert den Healthbar
                                         return;
                                     }
