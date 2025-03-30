@@ -237,6 +237,14 @@ public class Level {
                         if (monster.getDeadSince() <= now){
                             gamePane.getChildren().remove(monster.getShape());
                             monsters.remove(monster);
+                            for (Healthbar hb : healthbars){
+                                if (monster.getId() == hb.getId()){
+                                    healthbars.remove(hb);
+                                    gamePane.getChildren().remove(hb.getVg());
+                                    gamePane.getChildren().remove(hb.getVg());
+                                    break;
+                                }
+                            }
                             return;
                         }
                     }
