@@ -19,6 +19,7 @@ public class Monster {
     private int range;
     private long attackCooldown = 0;
     private long cooldown;
+    private double reciveKnockback = 1;
 
     public Monster(double x, double y, int id, int kind) {
         shape = new Circle(radius, Color.RED);
@@ -60,6 +61,8 @@ public class Monster {
     public int getKind(){return kind;}
     public void setAttackCooldown(long timeNow){attackCooldown = timeNow + cooldown;}
     public long getAttackCooldown(){return attackCooldown;}
+    private double getReciveKnockback(){return reciveKnockback;}
+    private void setReciveKnockback(double kb){reciveKnockback = kb;}
 
     // Positions- und Collisions Update-Methode
     public void moveTowards(double targetX, double targetY, List<Monster> monsters, List<Wall> walls, double dTime) {
@@ -87,7 +90,8 @@ public class Monster {
                 moveY += diffY / otherDistance * (SPEED * dTime) * 0.5;
             }
         }
-
+        moveX = moveX * getReciveKnockback();       // berechnet den erlittenen Knockback auf der X Achse
+        moveY = moveY * getReciveKnockback();       // berechnet den erlittenen Knockback auf der Y Achse
         boolean collideX = false, collideY = false;     // Kollisions Attribute
         for (Wall wall : walls){
             if (wall.collidesWith(getX() + moveX, getY(), radius)) collideX = true;     // Kollision auf X dann True
@@ -95,10 +99,12 @@ public class Monster {
         }
         if (!collideX) shape.setCenterX(getX() + moveX);    // Wenn auf X keine Kollision dann bewegen auf X möglich
         if (!collideY) shape.setCenterY(getY() + moveY);    // Wenn auf Y keine Kollision dann bewegen auf Y möglich
+        if (getReciveKnockback() < 1) setReciveKnockback(getReciveKnockback()+1);       // Sorgt dafür das der erlittene Knockback immer weniger wird
     }
 
-    public void kill(int damage, long time){
+    public void kill(int damage, long time, double knockback){
         health -= damage;
+        setReciveKnockback(knockback);
         if (health <= 0){
             shape.setFill(Color.YELLOW);
             alive = false;

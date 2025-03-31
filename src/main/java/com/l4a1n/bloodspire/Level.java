@@ -223,7 +223,7 @@ public class Level {
                         for (Projectile projectile : projectiles){  // Überprüft die Kollision von Projektilen und Monstern
                             if (projectile.getSource() == 1) continue;
                             if ((projectile.getX() >= monster.X() && projectile.getX() <= monster.X()+40) && (projectile.getY() >= monster.Y() && projectile.getY() <= monster.Y()+40) && !projectile.getTargets().contains(monster)) {
-                                monster.kill(player.getDamage(), now);  // Monster bekommt schaden
+                                monster.kill(player.getDamage(), now, player.getKnockback());  // Monster bekommt schaden
                                 projectile.setTarget(monster);  // getroffenes Monster wird einer Liste des Projektils hinzugefügt
                                 for (Healthbar hb : healthbars){
                                     if (monster.getId() == hb.getId()){

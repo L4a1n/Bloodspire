@@ -62,7 +62,6 @@ public class Healthbar {
         vg.setY(newY-20);
     }
     public void decHealth(double damage){
-        System.out.println("Decreasing: " + id);
         vg.setWidth(vg.getWidth()-(bg.getWidth()*(damage/health)));
         percantage = (int)Math.round(vg.getWidth()/bg.getWidth()*100);
         if (vg.getWidth() <= 0) bg.setFill(Color.TRANSPARENT);
