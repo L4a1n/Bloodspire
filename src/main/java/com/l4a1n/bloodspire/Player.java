@@ -12,7 +12,8 @@ public class Player {
     private int SPEED = 3;
     private int health = 500;    // ist noch unbenutzt
     private int radius = 20;
-    private int damage = 60;
+    private int damage = 10;
+    private double distance;
 
     public Player(double x, double y) {
         shape = new Circle(radius, Color.BLUE);
@@ -43,7 +44,7 @@ public class Player {
     public void update(double dTime, List<Wall> walls) {
         double dx = targetX - getX();
         double dy = targetY - getY();
-        double distance = Math.sqrt(dx * dx + dy * dy);
+        distance = Math.sqrt(dx * dx + dy * dy);
         double moveX = 0;
         double moveY = 0;
         if (distance > 4){

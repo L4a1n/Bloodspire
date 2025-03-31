@@ -10,6 +10,7 @@ import java.util.Random;
 public class Chest {
     private Rectangle shape;
     private String item;
+    private boolean used = false;
 
     public Chest(double x, double y) {
         shape = new Rectangle(40, 20, Color.GOLD);
@@ -26,13 +27,16 @@ public class Chest {
     public String getItem(){return item;}
 
     private String generateRandomItem() {
-        List<String> items = Arrays.asList("Schwert", "Schild", "Heiltrank", "Schatz");
+        List<String> items = Arrays.asList("Wave-Attack", "Spiral-Attack", "Health-Potion", "Blast-Attack");
         Random random = new Random();
         return items.get(random.nextInt(items.size()));
     }
 
     private void openChest() {
-        System.out.println("Du hast gefunden: " + item);
+        if (!used){
+            System.out.println("Du hast gefunden: " + item);
+        }
         shape.setFill(Color.GRAY); // Markiere geöffnete Truhe
+        used = true;
     }
 }

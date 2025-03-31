@@ -190,6 +190,8 @@ public class Level {
 
                 lastUpdate = now;
                 player.update(dTime, walls); // Spielerupdate
+                if (healthbars.get(0).getPercantage() <= 40) healthbars.get(0).animate(dTime);  // Wenn das Leben des Spielers unter 40% ist dann wird der Healthbar animiert
+
                 for (Projectile projectile : projectiles){
                     if (projectile.getSource() == 0) continue;
                     if ((projectile.getX() >= player.X() && projectile.getX() <= player.X()+40) && (projectile.getY() >= player.Y() && projectile.getY() <= player.Y()+40)){

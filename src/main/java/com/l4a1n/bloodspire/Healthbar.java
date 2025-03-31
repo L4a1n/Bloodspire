@@ -10,6 +10,10 @@ public class Healthbar {
     private double h;
     private int id;
     private int health;
+    private int animCount;
+    private int percantage = 100;
+    private int colorG = 0;
+    private int colorB = 0;
 
     public Healthbar(double x, double y, int health, int id){
         this.id = id;
@@ -17,6 +21,7 @@ public class Healthbar {
         if (id == 0){
             w = 300;
             h = 70;
+            animCount = 0;
         }
         else {
             w = 50;
@@ -25,7 +30,7 @@ public class Healthbar {
         bg = new Rectangle(w,h, Color.BLACK);
         bg.setX(x);
         bg.setY(y);
-        vg = new Rectangle(w,h, Color.RED);
+        vg = new Rectangle(w,h, Color.rgb(240, 0,0));
         vg.setX(x);
         vg.setY(y);
     }
@@ -33,6 +38,22 @@ public class Healthbar {
     public Rectangle getBg(){return bg;}
     public Rectangle getVg(){return vg;}
     public int getId(){return id;}
+    public int getPercantage(){return percantage;}
+
+    // Animation für niedriges Leben
+    public void animate(double dTime){
+        if (animCount < 100){
+            animCount ++;
+            colorG ++;
+            colorB ++;
+            vg.setFill(Color.rgb(240, colorG, colorB));
+        }
+        else{
+            animCount = 0;
+            colorB = 0;
+            colorG = 0;
+        }
+    }
 
     public void setPos(double newX, double newY){
         bg.setX(newX-25);
@@ -43,6 +64,7 @@ public class Healthbar {
     public void decHealth(double damage){
         System.out.println("Decreasing: " + id);
         vg.setWidth(vg.getWidth()-(bg.getWidth()*(damage/health)));
+        percantage = (int)Math.round(vg.getWidth()/bg.getWidth()*100);
         if (vg.getWidth() <= 0) bg.setFill(Color.TRANSPARENT);
     }
 }
