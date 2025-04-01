@@ -12,8 +12,8 @@ public class Player {
     private int SPEED = 2;
     private int health = 1000;
     private int radius = 20;
-    private int damage = 10;
-    private double knockback = -6;
+    private int damage = 100;
+    private double knockback = -2;
     private double distance;
 
     public Player(double x, double y) {
@@ -34,6 +34,7 @@ public class Player {
     public int getDamage(){return damage;}                      // return Schaden den der Spieler macht
     public void decHealth(int damage){health -= damage;}        // verringert das Leben des Spielers um angegebenen Schaden
     public double getKnockback(){return knockback;}             // return Rückstoß den der Spieler mit Attacken verursacht
+    public void heal(int amount){health += amount;}
 
     public void setDamage(int damage){this. damage = damage;}   // Legt den Schaden fest, den der Spieler verursacht
 

@@ -96,7 +96,6 @@ public class AbilityBar {
             gc.clearRect(0, 0, w, h);
             gc.setImageSmoothing(false);
             gc.drawImage(image, 0, 0, w, h);
-
         }
     }
 

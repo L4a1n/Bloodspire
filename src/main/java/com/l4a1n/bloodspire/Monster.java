@@ -20,12 +20,14 @@ public class Monster {
     private long attackCooldown = 0;
     private long cooldown;
     private double reciveKnockback = 1;
+    private boolean droppedLoot;
 
     public Monster(double x, double y, int id, int kind) {
         shape = new Circle(radius, Color.RED);
         shape.setCenterX(x);
         shape.setCenterY(y);
         alive = true;
+        droppedLoot = false;
         this.id = id;
         this.kind = kind;
         switch (kind){
@@ -64,6 +66,8 @@ public class Monster {
     public long getAttackCooldown(){return attackCooldown;}
     private double getReciveKnockback(){return reciveKnockback;}
     private void setReciveKnockback(double kb){reciveKnockback = kb;}
+    public boolean getDroppedLoot(){return droppedLoot;}
+    public void setDroppedLoot(){droppedLoot = true;}
 
     // Positions- und Collisions Update-Methode
     public void moveTowards(double targetX, double targetY, List<Monster> monsters, List<Wall> walls, double dTime) {
@@ -100,7 +104,7 @@ public class Monster {
         }
         if (!collideX) shape.setCenterX(getX() + moveX);    // Wenn auf X keine Kollision dann bewegen auf X möglich
         if (!collideY) shape.setCenterY(getY() + moveY);    // Wenn auf Y keine Kollision dann bewegen auf Y möglich
-        if (getReciveKnockback() < 1) setReciveKnockback(getReciveKnockback()+1);       // Sorgt dafür das der erlittene Knockback immer weniger wird
+        if (getReciveKnockback() < 1) setReciveKnockback(getReciveKnockback()+0.1);       // Sorgt dafür das der erlittene Knockback immer weniger wird
     }
 
     public void kill(int damage, long time, double knockback){

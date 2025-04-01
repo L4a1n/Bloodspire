@@ -54,9 +54,11 @@ public class Chest {
     public Canvas getCanvas(){return canvas;}
     public String getItem(){return item;}
     public void setAccesible(){accesible = true;}
+    public boolean getUsed(){return used;}
+    public void setUsed(){used = true;}
 
     private String generateRandomItem() {
-        List<String> items = Arrays.asList("Salve", "Wave", "Blast", "HealthPotion");
+        List<String> items = Arrays.asList("Salve", "Wave", "Blast", "HealthPotion", "HealthPotion", "HealthPotion");
         Random random = new Random();
         return items.get(random.nextInt(items.size()));
     }
@@ -66,7 +68,6 @@ public class Chest {
             System.out.println("Du hast gefunden: " + item);
         }
         gc.drawImage(opened, 0, 0, size, size);
-        used = true;
         return item;
     }
 }

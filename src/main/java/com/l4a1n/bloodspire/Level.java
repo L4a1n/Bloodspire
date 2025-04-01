@@ -19,10 +19,10 @@ public class Level {
     private Player player;
     private AbilityBar abilityBar;
     private List<Monster> monsters;
-    private List<Door> doors;
     private List<Healthbar> healthbars;
     private List<Projectile> projectiles = new ArrayList<>();
     private List<Chest> chests;
+    private List<Spawnarea> spawnareas;
     private Random random;
 
     public Level() {
@@ -36,9 +36,8 @@ public class Level {
         setupRoom();
         setupWalls();
         setupChest();
-        setupDoors();
+        setupSpawns();
         setupPlayer();
-        setupMonsters();
         setupMouseClick();
         setupKeyDown();
 
@@ -103,35 +102,15 @@ public class Level {
         }
     }
 
-    private void setupMonsters() {
+    private void setupSpawns(){
+        spawnareas = new ArrayList<>();
         monsters = new ArrayList<>();
-
-
-        int monsterCount = 4; // 2-4 Monster
-        for (int i = 0; i < monsterCount; i++) {
-            boolean again = false;
-            double x = random.nextDouble(700)+50;
-            double y = random.nextDouble(700)+50;
-            for (Wall wall : walls){
-                if (x+20 >= wall.getX() && x-20 <= wall.getX()+wall.getW() && y+20 >= wall.getY() && y-20 <= wall.getY()+ wall.getH()){     // Checkt ob die Spawn-Koordinaten auf den Wänden liegen damit die Monster nicht auf den Wänden spawnen
-                    System.out.println("Oh oh");
-                    i -= 1;     // Wenn ja, dann reduziert es den Iterations-Zähler um 1 und unterbricht den for-loop
-                    again = true;
-                    break;
-                }
-            }
-            if (!again){    // Wenn die Koordinaten in Ordnung sind dann werden Monster erstellt
-                int kind = random.nextInt(2)+1;
-                Monster monster = new Monster(x, y, i+1, kind);
-                monsters.add(monster);
-                gamePane.getChildren().add(monster.getShape());
-                Healthbar healthbar = new Healthbar(x-20,y-20,monster.getHealth() , i+1);
-                healthbars.add(healthbar);
-                gamePane.getChildren().add(healthbar.getBg());
-                gamePane.getChildren().add(healthbar.getVg());
-                System.out.println(healthbar.getId());
-            }
-        }
+        Spawnarea spawn = new Spawnarea(600, 600);
+        spawnareas.add(spawn);
+        gamePane.getChildren().add(spawn.getShape());
+        Spawnarea spawn2 = new Spawnarea(200, 800);
+        spawnareas.add(spawn2);
+        gamePane.getChildren().add(spawn2.getShape());
     }
 
     private void setupChest() {
@@ -141,18 +120,6 @@ public class Level {
         for (Chest chest : chests){
             gamePane.getChildren().add(chest.getShape());
             gamePane.getChildren().add(chest.getCanvas());
-        }
-    }
-
-    private void setupDoors() {
-        doors = new ArrayList<>();
-        int doorCount = random.nextInt(3) + 1; // 1-4 Türen
-
-        for (int i = 0; i < doorCount; i++) {
-            int side = i % 4; // Bestimmt die Wall
-            Door door = new Door(side, random.nextInt(700) + 50);
-            doors.add(door);
-            gamePane.getChildren().add(door.getShape());
         }
     }
 
@@ -196,8 +163,6 @@ public class Level {
     }
 
     private void handleKeyPress(KeyEvent event){
-        System.out.println("Taste gedrückt: " + event.getCode()); // Testausgabe
-
         switch (event.getCode()) {
             case DIGIT1:
                 abilityBar.setActiveSlot(0);
@@ -221,12 +186,37 @@ public class Level {
 
             @Override
             public void handle(long now) {
-                if (monsters.isEmpty()){
-                    setupMonsters();
-                }
+                //if (monsters.isEmpty()){
+                //    setupMonsters();
+                //}
                 if (lastUpdate == 0){
                     lastUpdate = now;
                     return;
+                }
+
+                for (Spawnarea spawn : spawnareas){
+                    if (spawn.spawnMonster(now)){
+                        if (monsters.isEmpty()){
+                            Monster monster = new Monster(spawn.getX()+ random.nextDouble(spawn.getSize()), spawn.getY()+ random.nextDouble(spawn.getSize()), 1, random.nextInt(3));
+                            monsters.add(monster);
+                            gamePane.getChildren().add(monster.getShape());
+                            Healthbar healthbar = new Healthbar(monster.getX()-20, monster.getY()-20, monster.getHealth(), 1);
+                            healthbars.add(healthbar);
+                            gamePane.getChildren().add(healthbar.getBg());
+                            gamePane.getChildren().add(healthbar.getVg());
+                            System.out.println(monsters.get(monsters.size()-1).getId());
+                        }
+                        else {
+                            Monster monster = new Monster(spawn.getX()+ random.nextDouble(spawn.getSize()), spawn.getY()+ random.nextDouble(spawn.getSize()), monsters.get(monsters.size()-1).getId()+1, random.nextInt(3));
+                            monsters.add(monster);
+                            gamePane.getChildren().add(monster.getShape());
+                            Healthbar healthbar = new Healthbar(monster.getX()-20, monster.getY()-20, monster.getHealth(), monsters.get(monsters.size()-1).getId());
+                            healthbars.add(healthbar);
+                            gamePane.getChildren().add(healthbar.getBg());
+                            gamePane.getChildren().add(healthbar.getVg());
+                            System.out.println(monsters.get(monsters.size()-1).getId());
+                        }
+                    }
                 }
 
                 double dTime = (now - lastUpdate) / 10_000_000.0;
@@ -256,15 +246,26 @@ public class Level {
                         switch (item){
                             case "Salve":
                                 abilityBar.unlockSlot(1);
+                                chest.setUsed();
                                 break;
                             case "Wave":
                                 abilityBar.unlockSlot(2);
+                                chest.setUsed();
                                 break;
                             case "Blast":
                                 abilityBar.unlockSlot(3);
+                                chest.setUsed();
                                 break;
                             case "HealthPotion":
-                                System.out.println("Potion!!!");
+                                if (!chest.getUsed()){
+                                    System.out.println("Potion!!!");
+                                    player.heal(100);
+                                    for (Healthbar hb : healthbars){
+                                        if (hb.getId() != 0) continue;
+                                        hb.incHealth(100);
+                                    }
+                                }
+                                chest.setUsed();
                                 break;
                         }
                     }
@@ -305,7 +306,6 @@ public class Level {
                                 projectile.setTarget(monster);  // getroffenes Monster wird einer Liste des Projektils hinzugefügt
                                 for (Healthbar hb : healthbars){
                                     if (monster.getId() == hb.getId()){
-                                        System.out.println("MonsterID: "+monster.getId()+" HealthbarID: "+ hb.getId());
                                         hb.decHealth(player.getDamage());   // reduziert den Healthbar
                                         return;
                                     }
@@ -314,6 +314,14 @@ public class Level {
                         }
                     }
                     else {
+                        if (!monster.getDroppedLoot()){
+                            monster.setDroppedLoot();
+                            if (random.nextInt(10) == 1){
+                                Chest chest = new Chest(monster.getX(), monster.getY());
+                                chests.add(chest);
+                                gamePane.getChildren().add(chest.getCanvas());
+                            }
+                        }
                         if (monster.getDeadSince() <= now){
                             gamePane.getChildren().remove(monster.getShape());
                             monsters.remove(monster);
