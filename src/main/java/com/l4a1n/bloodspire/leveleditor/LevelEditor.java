@@ -9,7 +9,7 @@ public class LevelEditor extends Application{
     @Override
     public void start(Stage stage){
         Pane editorPane = new Pane();
-        Scene scene = new Scene(editorPane, 800, 900);
+        Scene scene = new Scene(editorPane, 1200, 1100);
 
         stage.setTitle("Level Editor");
         stage.setScene(scene);

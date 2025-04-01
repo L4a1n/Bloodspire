@@ -22,7 +22,7 @@ public class Level {
     private List<Door> doors;
     private List<Healthbar> healthbars;
     private List<Projectile> projectiles = new ArrayList<>();
-    private Chest chest;
+    private List<Chest> chests;
     private Random random;
 
     public Level() {
@@ -35,10 +35,10 @@ public class Level {
 
         setupRoom();
         setupWalls();
-        setupPlayer();
-        setupMonsters();
         setupChest();
         setupDoors();
+        setupPlayer();
+        setupMonsters();
         setupMouseClick();
         setupKeyDown();
 
@@ -135,8 +135,12 @@ public class Level {
     }
 
     private void setupChest() {
-        chest = new Chest(random.nextInt(700) + 50, random.nextInt(700) + 50);
-        gamePane.getChildren().add(chest.getShape());
+        chests = new ArrayList<>();
+
+        chests.add(new Chest(random.nextInt(700) + 50, random.nextInt(700) + 50));
+        for (Chest chest : chests){
+            gamePane.getChildren().add(chest.getShape());
+        }
     }
 
     private void setupDoors() {
@@ -207,7 +211,6 @@ public class Level {
                 abilityBar.setActiveSlot(3);
                 break;
             case SPACE:
-
         }
     }
 
@@ -245,6 +248,26 @@ public class Level {
                 lastUpdate = now;
                 player.update(dTime, walls); // Spielerupdate
                 if (healthbars.get(0).getPercantage() <= 40) healthbars.get(0).animate(dTime);  // Wenn das Leben des Spielers unter 40% ist dann wird der Healthbar animiert
+
+                for (Chest chest : chests){
+                    if ((player.getX() >= chest.getX() && player.getX() <= chest.getX()+ chest.getSize()) && (player.getY() >= chest.getY() && player.getY() <= chest.getY()+ chest.getSize())){
+                        String item = chest.openChest();
+                        switch (item){
+                            case "Salve":
+                                abilityBar.unlockSlot(1);
+                                break;
+                            case "Wave":
+                                abilityBar.unlockSlot(2);
+                                break;
+                            case "Blast":
+                                abilityBar.unlockSlot(3);
+                                break;
+                            case "HealthPotion":
+                                System.out.println("Potion!!!");
+                                break;
+                        }
+                    }
+                }
 
                 for (Projectile projectile : projectiles){
                     if (projectile.getSource() == 0) continue;

@@ -10,33 +10,42 @@ import java.util.Random;
 public class Chest {
     private Rectangle shape;
     private String item;
-    private boolean used = false;
+    private boolean used;
+    private boolean accesible;
+    private double size = 40;
 
     public Chest(double x, double y) {
-        shape = new Rectangle(40, 20, Color.GOLD);
+        shape = new Rectangle(size, size, Color.GOLD);
         shape.setX(x);
         shape.setY(y);
 
+        used = false;
+        accesible = true;
+
         item = generateRandomItem();
-        shape.setOnMouseClicked(e -> openChest());
     }
 
+    public double getX(){return shape.getX();}
+    public double getY(){return shape.getY();}
+    public double getSize(){return size;}
     public Rectangle getShape() {
         return shape;
     }
     public String getItem(){return item;}
+    public void setAccesible(){accesible = true;}
 
     private String generateRandomItem() {
-        List<String> items = Arrays.asList("Wave-Attack", "Spiral-Attack", "Health-Potion", "Blast-Attack");
+        List<String> items = Arrays.asList("Salve", "Wave", "Blast", "HealthPotion");
         Random random = new Random();
         return items.get(random.nextInt(items.size()));
     }
 
-    private void openChest() {
-        if (!used){
+    public String openChest() {
+        if (!used && accesible){
             System.out.println("Du hast gefunden: " + item);
         }
         shape.setFill(Color.GRAY); // Markiere geöffnete Truhe
         used = true;
+        return item;
     }
 }
