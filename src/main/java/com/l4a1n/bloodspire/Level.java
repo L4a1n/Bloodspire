@@ -140,6 +140,7 @@ public class Level {
         chests.add(new Chest(random.nextInt(700) + 50, random.nextInt(700) + 50));
         for (Chest chest : chests){
             gamePane.getChildren().add(chest.getShape());
+            gamePane.getChildren().add(chest.getCanvas());
         }
     }
 

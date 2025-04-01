@@ -14,6 +14,7 @@ public class Bloodspire extends Application {
         Scene scene = new Scene(gamePane, 1200, 1100); // Spielszene
         stage.setTitle("Bloodspire");
         stage.setScene(scene);
+        stage.setResizable(false);
         stage.show();
     }
 

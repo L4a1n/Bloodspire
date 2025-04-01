@@ -2,7 +2,12 @@ package com.l4a1n.bloodspire;
 
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.image.Image;
 
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -12,12 +17,29 @@ public class Chest {
     private String item;
     private boolean used;
     private boolean accesible;
-    private double size = 40;
+    private double size = 50;
+    private Image opened;
+    private Image closed;
+    private Canvas canvas;
+    private GraphicsContext gc;
 
     public Chest(double x, double y) {
-        shape = new Rectangle(size, size, Color.GOLD);
+        shape = new Rectangle(size, size);
         shape.setX(x);
         shape.setY(y);
+        shape.setFill(Color.TRANSPARENT);
+
+        canvas = new Canvas(size, size);
+        canvas.setLayoutX(x);
+        canvas.setLayoutY(y);
+
+        opened = new Image(getClass().getResource("/Chest_Opened.png").toExternalForm());
+        closed = new Image(getClass().getResource("/Chest_Closed.png").toExternalForm());
+
+        gc = canvas.getGraphicsContext2D();
+        gc.clearRect(x, y, size, size);
+        gc.setImageSmoothing(false);
+        gc.drawImage(closed, 0, 0, size, size);
 
         used = false;
         accesible = true;
@@ -28,9 +50,8 @@ public class Chest {
     public double getX(){return shape.getX();}
     public double getY(){return shape.getY();}
     public double getSize(){return size;}
-    public Rectangle getShape() {
-        return shape;
-    }
+    public Rectangle getShape() {return shape;}
+    public Canvas getCanvas(){return canvas;}
     public String getItem(){return item;}
     public void setAccesible(){accesible = true;}
 
@@ -44,7 +65,7 @@ public class Chest {
         if (!used && accesible){
             System.out.println("Du hast gefunden: " + item);
         }
-        shape.setFill(Color.GRAY); // Markiere geöffnete Truhe
+        gc.drawImage(opened, 0, 0, size, size);
         used = true;
         return item;
     }

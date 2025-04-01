@@ -13,7 +13,7 @@ public class Player {
     private int health = 1000;
     private int radius = 20;
     private int damage = 10;
-    private double knockback = -8;
+    private double knockback = -6;
     private double distance;
 
     public Player(double x, double y) {
