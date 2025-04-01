@@ -18,7 +18,7 @@ public class Projectile {
     private int source;
 
     public Projectile(double x, double y, double targetX, double targetY, int source){
-        shape = new Circle(radius, Color.RED);
+        shape = new Circle(radius, Color.ORANGERED);
         shape.setCenterX(x);
         shape.setCenterY(y);
         aliveUntil = 0;

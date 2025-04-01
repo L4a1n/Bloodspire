@@ -7,7 +7,7 @@ import java.util.List;
 public class Monster {
     private Circle shape;
     private double SPEED = 0.6;        // Geschwindigkeit des Monsters
-    private static final double AVOID_DISTANCE = 40;        // Abstand der zu andern Entitäten eingehalten werden soll
+    private double AVOID_DISTANCE = 40;        // Abstand der zu andern Entitäten eingehalten werden soll
     private int health;
     private boolean alive;
     private double radius = 20;
@@ -40,8 +40,9 @@ public class Monster {
                 damage = 50;
                 shape.setFill(Color.DARKRED);
                 SPEED = 0.3;
-                range = 300;
+                range = 350;
                 cooldown = 1000000000;
+                AVOID_DISTANCE = 150;
                 break;
         }
     }

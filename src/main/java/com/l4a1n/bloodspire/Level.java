@@ -1,6 +1,8 @@
 package com.l4a1n.bloodspire;
 
 import javafx.animation.AnimationTimer;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
@@ -15,6 +17,7 @@ public class Level {
     private Pane gamePane;
     private List<Wall> walls;
     private Player player;
+    private AbilityBar abilityBar;
     private List<Monster> monsters;
     private List<Door> doors;
     private List<Healthbar> healthbars;
@@ -25,6 +28,7 @@ public class Level {
     public Level() {
         gamePane = new Pane();
         gamePane.setStyle("-fx-background-color: lightgray;");
+        gamePane.setFocusTraversable(true);
         random = new Random();
 
         healthbars = new ArrayList<>();
@@ -36,6 +40,10 @@ public class Level {
         setupChest();
         setupDoors();
         setupMouseClick();
+        setupKeyDown();
+
+        gamePane.requestFocus();
+
         startGameLoop();
     }
 
@@ -47,8 +55,8 @@ public class Level {
         // Raumbegrenzungen
         // Der Part hier muss mit was sinnvollem ersetzt werden...
         // Wird es überhaupt noch gebraucht ?
-        Rectangle room = new Rectangle(800, 800);
-        room.setFill(Color.LIGHTGRAY);
+        Rectangle room = new Rectangle(0, 1000, 1200, 100);
+        room.setFill(Color.rgb(100,100,100));
         gamePane.getChildren().add(room);
     }
 
@@ -72,10 +80,27 @@ public class Level {
     private void setupPlayer() {
         player = new Player(400, 400);
         gamePane.getChildren().add(player.getShape());
-        Healthbar healthbar = new Healthbar(50, 1000, player.getHealth(), 0);
+        Healthbar healthbar = new Healthbar(50, 1015, player.getHealth(), 0);
         healthbars.add(healthbar);
         gamePane.getChildren().add(healthbar.getBg());
         gamePane.getChildren().add(healthbar.getVg());
+        abilityBar = new AbilityBar(400, 1015);
+        for (Rectangle slot : abilityBar.getSlots()){
+            gamePane.getChildren().add(slot);
+        }
+
+        abilityBar.setAbilityIcon(0, "/Fireball_Icon.png");
+        abilityBar.setAbilityIcon(1, "/Salve_Icon.png");
+        abilityBar.setAbilityIcon(2, "/Wave_Icon.png");
+        abilityBar.setAbilityIcon(3, "/Blast_Icon.png");
+
+        for (Canvas icon : abilityBar.getAbilityIcons()){
+            gamePane.getChildren().add(icon);
+        }
+
+        for (Rectangle overlay : abilityBar.getOverlays()){
+            gamePane.getChildren().add(overlay);
+        }
     }
 
     private void setupMonsters() {
@@ -155,6 +180,35 @@ public class Level {
                 gamePane.getChildren().add(projectile.getShape());
             }
         });
+    }
+
+    private void setupKeyDown() {
+        gamePane.sceneProperty().addListener((observable, oldScene, newScene) -> {
+            if (newScene != null) { // Sicherstellen, dass die Scene existiert
+                newScene.setOnKeyPressed(event -> handleKeyPress(event));
+            }
+        });
+    }
+
+    private void handleKeyPress(KeyEvent event){
+        System.out.println("Taste gedrückt: " + event.getCode()); // Testausgabe
+
+        switch (event.getCode()) {
+            case DIGIT1:
+                abilityBar.setActiveSlot(0);
+                break;
+            case DIGIT2:
+                abilityBar.setActiveSlot(1);
+                break;
+            case DIGIT3:
+                abilityBar.setActiveSlot(2);
+                break;
+            case DIGIT4:
+                abilityBar.setActiveSlot(3);
+                break;
+            case SPACE:
+
+        }
     }
 
     private void startGameLoop() {

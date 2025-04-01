@@ -9,11 +9,11 @@ public class Player {
     private Circle shape;
     private double targetX;
     private double targetY;
-    private int SPEED = 3;
-    private int health = 500;
+    private int SPEED = 2;
+    private int health = 1000;
     private int radius = 20;
     private int damage = 10;
-    private double knockback = -20;
+    private double knockback = -8;
     private double distance;
 
     public Player(double x, double y) {
@@ -41,6 +41,10 @@ public class Player {
     public void setTarget(double x, double y) {
         targetX = x;
         targetY = y;
+    }
+
+    public void sprint(long time){
+
     }
 
     // In der Update Methode wird die Position des Spielers aktualisiert und Kollisionsabfragen gemacht
