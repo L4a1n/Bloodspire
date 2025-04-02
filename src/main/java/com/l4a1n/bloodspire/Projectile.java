@@ -3,15 +3,15 @@ package com.l4a1n.bloodspire;
 import javafx.scene.shape.Circle;
 import javafx.scene.paint.Color;
 
-import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Projectile {
     private Circle shape;
-    private int radius = 3;
+    private int radius = 5;
     private long aliveUntil;
     private List<Monster> targets;
+    private List<Circle> projectiles;
     private double directionX;
     private boolean playerHit;
     private double directionY;
@@ -20,21 +20,30 @@ public class Projectile {
     private int source;
 
     public Projectile(double x, double y, double targetX, double targetY, int source, int kind, int damgage){
-        shape = new Circle(radius, Color.ORANGERED);
-        shape.setCenterX(x);
-        shape.setCenterY(y);
-        aliveUntil = 0;
-        targets = new ArrayList<>();
-        this.source = source;
-        this.damgage = damgage;
-        playerHit = false;
+        projectiles = new ArrayList<>();
+        switch (kind){
+            case 0:
+                shape = new Circle(radius, Color.ORANGERED);
+                projectiles.add(shape);
+                shape.setCenterX(x);
+                shape.setCenterY(y);
+                aliveUntil = 0;
+                targets = new ArrayList<>();
+                this.source = source;
+                this.damgage = damgage;
+                playerHit = false;
 
-        // Berechnet beim erstellen des Objekts die Richtung in die es sich bewegen soll
-        double dx = targetX - x;
-        double dy = targetY - y;
-        double distance = Math.sqrt(dx * dx + dy * dy);
-        directionX = dx / distance;
-        directionY = dy / distance;
+                // Berechnet beim Erstellen des Objekts die Richtung in die es sich bewegen soll
+                double dx = targetX - x;
+                double dy = targetY - y;
+                double distance = Math.sqrt(dx * dx + dy * dy);
+                directionX = dx / distance;
+                directionY = dy / distance;
+                break;
+            case 1:
+                break;
+        }
+
     }
 
     public Circle getShape(){return shape;}
@@ -48,6 +57,7 @@ public class Projectile {
     public List<Monster> getTargets(){return targets;}
     public int getSource(){return source;}
     public int getDamgage(){return damgage;}
+    public List<Circle> getProjectiles(){return projectiles;}
 
     public void update(double dTime, List<Wall> walls){
         boolean collide = false;

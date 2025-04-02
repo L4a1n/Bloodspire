@@ -41,8 +41,8 @@ public class Monster {
                 health = 200;
                 damage = 30;
                 shape.setFill(Color.DARKRED);
-                SPEED = 70;
-                range = 350;
+                SPEED = 40;
+                range = 300;
                 cooldown = 1000000000;
                 AVOID_DISTANCE = 150;
                 break;

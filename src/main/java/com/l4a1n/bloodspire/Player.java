@@ -1,5 +1,6 @@
 package com.l4a1n.bloodspire;
 
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
@@ -12,7 +13,7 @@ public class Player {
     private int SPEED = 150;
     private int health = 1000;
     private int radius = 20;
-    private int damage = 20;
+    private int damage = 25;
     private double knockback = -2;
     private double distance;
     private int currentAbility;
@@ -30,14 +31,13 @@ public class Player {
     public Circle getShape() {return shape;}                    // Gibt die ganze Figur zurück. Nützlich für Kollision oder ähnliches.
     public double getX() {return shape.getCenterX();}           // return X Koordinate proportional von der Mitte der Figur.
     public double getY() {return shape.getCenterY();}           // return Y Koordinate proportional von der Mitte der Figur.
-    public double X(){return shape.getCenterX() - radius;}      // return Links oben X Koordinate
-    public double Y(){return shape.getCenterY() - radius;}      // return Links oben Y Koordinate
     public int getHealth(){return health;}                      // return aktuelles Leben des Spielers
     public int getDamage(){return damage;}                      // return Schaden den der Spieler macht
     public void decHealth(int damage){health -= damage;}        // verringert das Leben des Spielers um angegebenen Schaden
     public double getKnockback(){return knockback;}             // return Rückstoß den der Spieler mit Attacken verursacht
     public void heal(int amount){health += amount;}
     public int getCurrentAbility(){return currentAbility;}
+    public void setCurrentAbility(int i){currentAbility = i;}
 
     public void setDamage(int damage){this. damage = damage;}   // Legt den Schaden fest, den der Spieler verursacht
 
@@ -45,6 +45,40 @@ public class Player {
     public void setTarget(double x, double y) {
         targetX = x;
         targetY = y;
+    }
+
+    double[] rotateVector(double x, double y, double angle) {
+        double cos = Math.cos(angle);
+        double sin = Math.sin(angle);
+        return new double[]{
+                x * cos - y * sin,  // Rotated X
+                x * sin + y * cos   // Rotated Y
+        };
+    }
+
+    public void fireSalve(List<Projectile> projectiles, Pane gamePane, double x, double y, double targetX, double targetY){
+        double angleOffset = Math.toRadians(10);
+
+        double dx = targetX - x;
+        double dy = targetY - y;
+        double distance = Math.sqrt(dx * dx + dy * dy);
+        double dirX = dx / distance;
+        double dirY = dy / distance;
+
+
+
+        Projectile p1 = new Projectile(x, y, targetX, targetY, 0, 0, getDamage());            // Mittleres Projektil
+
+        double[] leftDir = rotateVector(dirX, dirY, -angleOffset);
+        Projectile p2 = new Projectile(x, y, x + leftDir[0] * distance, y + leftDir[1] * distance, 0, 0, damage);
+
+        double[] rightDir = rotateVector(dirX, dirY, angleOffset);
+        Projectile p3 = new Projectile(x, y, x + rightDir[0] * distance, y + rightDir[1] * distance, 0, 0, damage);
+
+        projectiles.add(p1);
+        projectiles.add(p2);
+        projectiles.add(p3);
+        gamePane.getChildren().addAll(p1.getShape(), p2.getShape(), p3.getShape());
     }
 
     public void sprint(long time){

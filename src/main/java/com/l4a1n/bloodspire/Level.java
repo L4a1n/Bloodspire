@@ -10,6 +10,7 @@ import javafx.scene.shape.Rectangle;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.shape.Shape;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,8 +38,8 @@ public class Level {
 
         setupRoom();
         setupWalls();
-        setupChest();
         setupSpawns();
+        setupChest();
         setupPlayer();
         setupMouseClick();
         setupKeyDown();
@@ -109,12 +110,10 @@ public class Level {
         monsters = new ArrayList<>();
         Spawnarea spawn = new Spawnarea(800, 200);
         spawnareas.add(spawn);
-        gamePane.getChildren().add(spawn.getShape());
-        gamePane.getChildren().add(spawn.getCanvas());
+        gamePane.getChildren().addAll(spawn.getShape(), spawn.getCanvas());
         Spawnarea spawn2 = new Spawnarea(200, 800);
         spawnareas.add(spawn2);
-        gamePane.getChildren().add(spawn2.getShape());
-        gamePane.getChildren().add(spawn2.getCanvas());
+        gamePane.getChildren().addAll(spawn2.getShape(), spawn2.getCanvas());
     }
 
     private void setupChest() {
@@ -137,6 +136,18 @@ public class Level {
                 double targetY = event.getY();
                 player.setTarget(targetX, targetY); // Zielposition setzen
             }
+            else if (event.getButton() == MouseButton.SECONDARY){
+                switch (player.getCurrentAbility()){
+                    case 0:
+                        Projectile projectile = new Projectile(player.getX(), player.getY(), event.getX(), event.getY(), 0, player.getCurrentAbility(), player.getDamage());
+                        projectiles.add(projectile);
+                        gamePane.getChildren().add(projectile.getShape());
+                        break;
+                    case 1:
+                        player.fireSalve(projectiles, getGamePane(), player.getX(), player.getY(), event.getX(), event.getY());
+                        break;
+                }
+            }
         });
         // Wenn die Maus nur geclickt wird
         gamePane.setOnMousePressed((MouseEvent event) -> {
@@ -151,9 +162,16 @@ public class Level {
         // Wenn der Spieler auf das Monster klickt wird es angegriffen
         gamePane.setOnMouseClicked((MouseEvent event) -> {
             if (event.getButton() == MouseButton.SECONDARY){
-                Projectile projectile = new Projectile(player.getX(), player.getY(), event.getX(), event.getY(), 0, player.getCurrentAbility(), player.getDamage());
-                projectiles.add(projectile);
-                gamePane.getChildren().add(projectile.getShape());
+                switch (player.getCurrentAbility()){
+                    case 0:
+                        Projectile projectile = new Projectile(player.getX(), player.getY(), event.getX(), event.getY(), 0, player.getCurrentAbility(), player.getDamage());
+                        projectiles.add(projectile);
+                        gamePane.getChildren().add(projectile.getShape());
+                        break;
+                    case 1:
+                        player.fireSalve(projectiles, getGamePane(), player.getX(), player.getY(), event.getX(), event.getY());
+                        break;
+                }
             }
         });
     }
@@ -170,15 +188,19 @@ public class Level {
         switch (event.getCode()) {
             case DIGIT1:
                 abilityBar.setActiveSlot(0);
+                player.setCurrentAbility(0);
                 break;
             case DIGIT2:
                 abilityBar.setActiveSlot(1);
+                player.setCurrentAbility(1);
                 break;
             case DIGIT3:
                 abilityBar.setActiveSlot(2);
+                player.setCurrentAbility(2);
                 break;
             case DIGIT4:
                 abilityBar.setActiveSlot(3);
+                player.setCurrentAbility(3);
                 break;
             case SPACE:
         }
@@ -246,7 +268,9 @@ public class Level {
                 if (healthbars.get(0).getPercantage() <= 40) healthbars.get(0).animate(dTime);  // Wenn das Leben des Spielers unter 40% ist dann wird der Healthbar animiert
 
                 for (Chest chest : chests){
-                    if ((player.getX() >= chest.getX() && player.getX() <= chest.getX()+ chest.getSize()) && (player.getY() >= chest.getY() && player.getY() <= chest.getY()+ chest.getSize()) && chest.getAccessible()){
+ //                   if ((player.getX() >= chest.getX() && player.getX() <= chest.getX()+ chest.getSize()) && (player.getY() >= chest.getY() && player.getY() <= chest.getY()+ chest.getSize()) && chest.getAccessible()){
+                    Shape intersection = Shape.intersect(player.getShape(), chest.getShape());
+                    if (!intersection.getBoundsInLocal().isEmpty() && chest.getAccessible()){
                         String item = chest.openChest();
                         switch (item){
                             case "Salve":
@@ -288,7 +312,8 @@ public class Level {
 
                 for (Projectile projectile : projectiles){
                     if (projectile.getSource() == 0) continue;
-                    if ((projectile.getX() >= player.X() && projectile.getX() <= player.X()+40) && (projectile.getY() >= player.Y() && projectile.getY() <= player.Y()+40) && !projectile.getPlayerHit()){
+                    Shape intersection = Shape.intersect(player.getShape(), projectile.getShape());
+                    if (!intersection.getBoundsInLocal().isEmpty() && !projectile.getPlayerHit()){
                         player.decHealth(projectile.getDamgage());
                         System.out.println(player.getHealth());
                         for (Healthbar hb : healthbars){
@@ -313,7 +338,6 @@ public class Level {
                                 break;
                             case 1:
                                 if (monster.getAttacking() && monster.getAttackCooldown() <= now) {
-                                    System.out.println("Getting Attacked");
                                     player.decHealth(monster.getDamage());
                                     for (Healthbar hb : healthbars) {
                                         if (hb.getId() != 0) continue;
@@ -329,7 +353,8 @@ public class Level {
                         }
                         for (Projectile projectile : projectiles){  // Überprüft die Kollision von Projektilen und Monstern
                             if (projectile.getSource() == 1) continue;
-                            if ((projectile.getX() >= monster.X() && projectile.getX() <= monster.X()+40) && (projectile.getY() >= monster.Y() && projectile.getY() <= monster.Y()+40) && !projectile.getTargets().contains(monster)) {
+                            Shape intersection = Shape.intersect(monster.getShape(), projectile.getShape());
+                            if (!intersection.getBoundsInLocal().isEmpty() && !projectile.getTargets().contains(monster)) {
                                 monster.kill(player.getDamage(), now, player.getKnockback());  // Monster bekommt schaden
                                 projectile.setTarget(monster);  // getroffenes Monster wird einer Liste des Projektils hinzugefügt
                                 for (Healthbar hb : healthbars){
