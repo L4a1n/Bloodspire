@@ -7,7 +7,6 @@ import javafx.scene.image.Image;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 
-import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -18,6 +17,7 @@ public class Chest {
     private boolean used;
     private boolean accesible;
     private double size = 50;
+    private long timeSinceUsed;
     private Image opened;
     private Image closed;
     private Canvas canvas;
@@ -53,9 +53,11 @@ public class Chest {
     public Rectangle getShape() {return shape;}
     public Canvas getCanvas(){return canvas;}
     public String getItem(){return item;}
-    public void setAccesible(){accesible = true;}
+    public void setInaccessible(){accesible = false;}
     public boolean getUsed(){return used;}
-    public void setUsed(){used = true;}
+    public void setUsed(long time){used = true; timeSinceUsed = time + 5000000000L;}
+    public boolean getAccessible(){return accesible;}
+    public long getTimeSinceUsed(){return timeSinceUsed;}
 
     private String generateRandomItem() {
         List<String> items = Arrays.asList("Salve", "Wave", "Blast", "HealthPotion", "HealthPotion", "HealthPotion");

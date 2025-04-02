@@ -6,8 +6,10 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,22 +53,22 @@ public class Level {
     }
 
     private void setupRoom() {
-        // Raumbegrenzungen
-        // Der Part hier muss mit was sinnvollem ersetzt werden...
-        // Wird es überhaupt noch gebraucht ?
-        Rectangle room = new Rectangle(0, 1000, 1200, 100);
-        room.setFill(Color.rgb(100,100,100));
-        gamePane.getChildren().add(room);
+        GraphicsContext gc;
+        Canvas canvas = new Canvas(1200, 1000);
+        Image floor = new Image(getClass().getResource("/Floor.png").toExternalForm());
+        gc = canvas.getGraphicsContext2D();
+        gc.clearRect(0,0,1200,1000);
+        gc.setImageSmoothing(false);
+        gc.drawImage(floor, 0,0,1200,1000);
+        gamePane.getChildren().add(canvas);
     }
 
     private void setupWalls(){
         walls = new ArrayList<>();
         
-        walls.add(new Wall(100, 200, 30, 80));
-        walls.add(new Wall(200, 100, 80, 30));
-        walls.add(new Wall(260, 130, 20, 120));
+        walls.add(new Wall(378, 499, 243, 130));
         walls.add(new Wall(0, 990, 1200, 10)); // Unten
-        walls.add(new Wall(0, 0, 1200,10)); // Oben
+        walls.add(new Wall(0, 0, 1200,40)); // Oben
         walls.add(new Wall(0, 0, 10, 1000)); // Links
         walls.add(new Wall(1190, 0, 10, 1000)); // Rechts
     
@@ -105,12 +107,14 @@ public class Level {
     private void setupSpawns(){
         spawnareas = new ArrayList<>();
         monsters = new ArrayList<>();
-        Spawnarea spawn = new Spawnarea(600, 600);
+        Spawnarea spawn = new Spawnarea(800, 200);
         spawnareas.add(spawn);
         gamePane.getChildren().add(spawn.getShape());
+        gamePane.getChildren().add(spawn.getCanvas());
         Spawnarea spawn2 = new Spawnarea(200, 800);
         spawnareas.add(spawn2);
         gamePane.getChildren().add(spawn2.getShape());
+        gamePane.getChildren().add(spawn2.getCanvas());
     }
 
     private void setupChest() {
@@ -135,7 +139,7 @@ public class Level {
             }
         });
         // Wenn die Maus nur geclickt wird
-        gamePane.setOnMouseClicked((MouseEvent event) -> {
+        gamePane.setOnMousePressed((MouseEvent event) -> {
             // Wenn es die Linke Maustaste ist
             if (event.getButton() == MouseButton.PRIMARY){
                 // Setzt die Koordinaten der Maus zu Zielkoordinaten des Spielers
@@ -147,7 +151,7 @@ public class Level {
         // Wenn der Spieler auf das Monster klickt wird es angegriffen
         gamePane.setOnMouseClicked((MouseEvent event) -> {
             if (event.getButton() == MouseButton.SECONDARY){
-                Projectile projectile = new Projectile(player.getX(), player.getY(), event.getX(), event.getY(), 0);
+                Projectile projectile = new Projectile(player.getX(), player.getY(), event.getX(), event.getY(), 0, player.getCurrentAbility(), player.getDamage());
                 projectiles.add(projectile);
                 gamePane.getChildren().add(projectile.getShape());
             }
@@ -194,10 +198,16 @@ public class Level {
                     return;
                 }
 
+                // Rechnet DeltaTime aus (die Zeit die Seit dem letzen Frame vergangen ist)
+                // Wird benutzt um die Geschwindigkeit anzupassen, sodass die Bewwegung Framerate-unabhängig ist
+                double dTime = (now - lastUpdate) / 1_000_000_000.0;
+                lastUpdate = now;
+
                 for (Spawnarea spawn : spawnareas){
+                    spawn.animate(dTime);
                     if (spawn.spawnMonster(now)){
                         if (monsters.isEmpty()){
-                            Monster monster = new Monster(spawn.getX()+ random.nextDouble(spawn.getSize()), spawn.getY()+ random.nextDouble(spawn.getSize()), 1, random.nextInt(3));
+                            Monster monster = new Monster(spawn.getX()+ random.nextDouble(spawn.getSize()), spawn.getY()+ random.nextDouble(spawn.getSize()), 1, random.nextInt(2)+1);
                             monsters.add(monster);
                             gamePane.getChildren().add(monster.getShape());
                             Healthbar healthbar = new Healthbar(monster.getX()-20, monster.getY()-20, monster.getHealth(), 1);
@@ -207,7 +217,7 @@ public class Level {
                             System.out.println(monsters.get(monsters.size()-1).getId());
                         }
                         else {
-                            Monster monster = new Monster(spawn.getX()+ random.nextDouble(spawn.getSize()), spawn.getY()+ random.nextDouble(spawn.getSize()), monsters.get(monsters.size()-1).getId()+1, random.nextInt(3));
+                            Monster monster = new Monster(spawn.getX()+ random.nextDouble(spawn.getSize()), spawn.getY()+ random.nextDouble(spawn.getSize()), monsters.get(monsters.size()-1).getId()+1, random.nextInt(2)+1);
                             monsters.add(monster);
                             gamePane.getChildren().add(monster.getShape());
                             Healthbar healthbar = new Healthbar(monster.getX()-20, monster.getY()-20, monster.getHealth(), monsters.get(monsters.size()-1).getId());
@@ -218,8 +228,6 @@ public class Level {
                         }
                     }
                 }
-
-                double dTime = (now - lastUpdate) / 10_000_000.0;
 
                 for (Projectile projectile : projectiles){
                     if (projectile.getAliveUntil() == 0){   // Wenn die Zeit 0 ist dann wird die aktuelle Zeit gesetzt
@@ -233,52 +241,62 @@ public class Level {
                     }
                     projectile.update(dTime, walls);
                 }
-                // Rechnet DeltaTime aus (die Zeit die Seit dem letzen Frame vergangen ist)
-                // Wird benutzt um die Geschwindigkeit anzupassen, sodass die Bewwegung Framerate-unabhängig ist
 
-                lastUpdate = now;
                 player.update(dTime, walls); // Spielerupdate
                 if (healthbars.get(0).getPercantage() <= 40) healthbars.get(0).animate(dTime);  // Wenn das Leben des Spielers unter 40% ist dann wird der Healthbar animiert
 
                 for (Chest chest : chests){
-                    if ((player.getX() >= chest.getX() && player.getX() <= chest.getX()+ chest.getSize()) && (player.getY() >= chest.getY() && player.getY() <= chest.getY()+ chest.getSize())){
+                    if ((player.getX() >= chest.getX() && player.getX() <= chest.getX()+ chest.getSize()) && (player.getY() >= chest.getY() && player.getY() <= chest.getY()+ chest.getSize()) && chest.getAccessible()){
                         String item = chest.openChest();
                         switch (item){
                             case "Salve":
                                 abilityBar.unlockSlot(1);
-                                chest.setUsed();
+                                chest.setUsed(now);
+                                chest.setInaccessible();
                                 break;
                             case "Wave":
                                 abilityBar.unlockSlot(2);
-                                chest.setUsed();
+                                chest.setUsed(now);
+                                chest.setInaccessible();
                                 break;
                             case "Blast":
                                 abilityBar.unlockSlot(3);
-                                chest.setUsed();
+                                chest.setUsed(now);
+                                chest.setInaccessible();
                                 break;
                             case "HealthPotion":
                                 if (!chest.getUsed()){
                                     System.out.println("Potion!!!");
-                                    player.heal(100);
+                                    player.heal(300);
                                     for (Healthbar hb : healthbars){
                                         if (hb.getId() != 0) continue;
-                                        hb.incHealth(100);
+                                        hb.incHealth(300);
                                     }
                                 }
-                                chest.setUsed();
+                                chest.setUsed(now);
+                                chest.setInaccessible();
                                 break;
                         }
+                    }
+                    if (chest.getTimeSinceUsed() < now && chest.getUsed()){
+                        gamePane.getChildren().remove(chest.getCanvas());
+                        gamePane.getChildren().remove(chest.getShape());
+                        chests.remove(chest);
+                        break;
                     }
                 }
 
                 for (Projectile projectile : projectiles){
                     if (projectile.getSource() == 0) continue;
-                    if ((projectile.getX() >= player.X() && projectile.getX() <= player.X()+40) && (projectile.getY() >= player.Y() && projectile.getY() <= player.Y()+40)){
-                        player.decHealth(5);
+                    if ((projectile.getX() >= player.X() && projectile.getX() <= player.X()+40) && (projectile.getY() >= player.Y() && projectile.getY() <= player.Y()+40) && !projectile.getPlayerHit()){
+                        player.decHealth(projectile.getDamgage());
+                        System.out.println(player.getHealth());
                         for (Healthbar hb : healthbars){
                             if (hb.getId() != 0) continue;
-                            hb.decHealth(5);
+                            hb.decHealth(projectile.getDamgage());
+                            break;
                         }
+                        projectile.setPlayerHit();
                     }
                 }
                 for (Monster monster : monsters) {
@@ -287,13 +305,23 @@ public class Level {
                         switch (monster.getKind()){     // Monster attackieren je nach Kind of Monster
                             case 2:
                                 if (monster.getAttacking() && monster.getAttackCooldown() <= now){
-                                    Projectile projectile = new Projectile(monster.getX(), monster.getY(), player.getX(), player.getY(), 1);
+                                    Projectile projectile = new Projectile(monster.getX(), monster.getY(), player.getX(), player.getY(), 1, 0, monster.getDamage());
                                     projectiles.add(projectile);
                                     gamePane.getChildren().add(projectile.getShape());
                                     monster.setAttackCooldown(now);
                                 }
                                 break;
                             case 1:
+                                if (monster.getAttacking() && monster.getAttackCooldown() <= now) {
+                                    System.out.println("Getting Attacked");
+                                    player.decHealth(monster.getDamage());
+                                    for (Healthbar hb : healthbars) {
+                                        if (hb.getId() != 0) continue;
+                                        hb.decHealth(monster.getDamage());
+                                        break;
+                                    }
+                                    monster.setAttackCooldown(now);
+                                }
                                 break;
                         }
                         for (Healthbar hb : healthbars){

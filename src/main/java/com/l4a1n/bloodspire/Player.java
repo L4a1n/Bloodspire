@@ -9,12 +9,13 @@ public class Player {
     private Circle shape;
     private double targetX;
     private double targetY;
-    private int SPEED = 2;
+    private int SPEED = 150;
     private int health = 1000;
     private int radius = 20;
-    private int damage = 100;
+    private int damage = 20;
     private double knockback = -2;
     private double distance;
+    private int currentAbility;
 
     public Player(double x, double y) {
         shape = new Circle(radius, Color.BLUE);
@@ -22,6 +23,7 @@ public class Player {
         shape.setCenterY(y);
         targetX = x;
         targetY = y;
+        currentAbility = 0;
     }
 
     // The "David" Getters
@@ -35,6 +37,7 @@ public class Player {
     public void decHealth(int damage){health -= damage;}        // verringert das Leben des Spielers um angegebenen Schaden
     public double getKnockback(){return knockback;}             // return Rückstoß den der Spieler mit Attacken verursacht
     public void heal(int amount){health += amount;}
+    public int getCurrentAbility(){return currentAbility;}
 
     public void setDamage(int damage){this. damage = damage;}   // Legt den Schaden fest, den der Spieler verursacht
 

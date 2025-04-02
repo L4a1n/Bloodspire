@@ -6,7 +6,7 @@ import java.util.List;
 
 public class Monster {
     private Circle shape;
-    private double SPEED = 0.6;                // Geschwindigkeit des Monsters
+    private double SPEED = 110;                // Geschwindigkeit des Monsters
     private double AVOID_DISTANCE = 40;        // Abstand der zu andern Entitäten eingehalten werden soll
     private int health;
     private boolean alive;
@@ -33,15 +33,15 @@ public class Monster {
         switch (kind){
             case 1:
                 health = 100;
-                damage = 30;
-                range = 40;
-                cooldown = 10000000;
+                damage = 10;
+                range = 50;
+                cooldown = 1000000000;
                 break;
             case 2:
                 health = 200;
-                damage = 50;
+                damage = 30;
                 shape.setFill(Color.DARKRED);
-                SPEED = 0.3;
+                SPEED = 70;
                 range = 350;
                 cooldown = 1000000000;
                 AVOID_DISTANCE = 150;
@@ -80,8 +80,8 @@ public class Monster {
 
         if (distance < AVOID_DISTANCE) return;      // Bricht ab hier ab, wenn die Distanz zu Target kleiner als AVOID_DISTANCE ist
 
-        double moveX = (dx / distance) * SPEED;     // Bestimmt wie viele Pixel auf X das Monster hinter sich legen soll
-        double moveY = dy / distance * SPEED;       // Bestimmt wie viele Pixel auf Y das Monster hinter sich legen soll
+        double moveX = (dx / distance) * SPEED * dTime;     // Bestimmt wie viele Pixel auf X das Monster hinter sich legen soll
+        double moveY = dy / distance * SPEED * dTime;       // Bestimmt wie viele Pixel auf Y das Monster hinter sich legen soll
 
         for (Monster other : monsters){
             if (other == this) continue;    // Wenn es sich um sich selber handelt, dann soll die nächste Iteration der Schleife fortgesetzt werden (Damit man keine Kollision mit sich selber überprüft)
@@ -91,8 +91,8 @@ public class Monster {
             double otherDistance = Math.sqrt(diffX * diffX + diffY * diffY);    // Rechnet die Distanz zu anderen Monstern aus
 
             if (otherDistance < AVOID_DISTANCE && otherDistance > 0){
-                moveX += diffX / otherDistance * (SPEED * dTime) * 0.5;
-                moveY += diffY / otherDistance * (SPEED * dTime) * 0.5;
+                moveX += diffX / otherDistance * SPEED * dTime * 0.5;
+                moveY += diffY / otherDistance * SPEED * dTime * 0.5;
             }
         }
         moveX = moveX * getReciveKnockback();       // berechnet den erlittenen Knockback auf der X Achse

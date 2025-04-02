@@ -10,6 +10,7 @@ public class Healthbar {
     private double h;
     private int id;
     private int health;
+    private int maxHealth;
     private int animCount;
     private int percantage = 100;
     private int colorG = 0;
@@ -18,6 +19,7 @@ public class Healthbar {
     public Healthbar(double x, double y, int health, int id){
         this.id = id;
         this.health = health;
+        maxHealth = health;
         if (id == 0){       // Der Spieler hat die ID 0, daher die Variablen angepasst auf den Spieler Healthbar
             w = 300;
             h = 70;
@@ -39,7 +41,7 @@ public class Healthbar {
     public Rectangle getVg(){return vg;}                            // return Vordergrund Rectangle
     public int getId(){return id;}                                  // return ID, welche beim Erstellen vergeben wird. Wird benutzt, um die Healthbars den Entitäten zuzuordnen
     public int getPercantage(){return percantage;}                  // return die Prozentanzahl des übrigen Lebens
-    public void setNewHealth(int health){this.health = health;}     // Wenn das maximale Leben des Spielers sich ver#ndert muss es auch hier verändert werden
+    public void setNewHealth(int health){this.health = health; maxHealth = health;}     // Wenn das maximale Leben des Spielers sich verändert muss es auch hier verändert werden
 
     // Animation für niedriges Leben
     public void animate(double dTime){
@@ -63,13 +65,14 @@ public class Healthbar {
         vg.setY(newY-20);
     }
     public void decHealth(double damage){
-        vg.setWidth(vg.getWidth()-(bg.getWidth()*(damage/health)));         // Vermindert den Healthbar, um wie viel schaden angegeben wird
+        vg.setWidth(vg.getWidth()-(bg.getWidth()*(damage/(double)health)));         // Vermindert den Healthbar, um wie viel schaden angegeben wird
         percantage = (int)Math.round(vg.getWidth()/bg.getWidth()*100);      // Passt die neue Prozentzahl an
-        if (vg.getWidth() <= 0) bg.setFill(Color.TRANSPARENT);              // Sofern das gesamte Leben verloren wurde, wird der Healthbar unsichtbar gemacht
+        if (vg.getWidth() <= 0 && id != 0) bg.setFill(Color.TRANSPARENT);              // Sofern das gesamte Leben verloren wurde, wird der Healthbar unsichtbar gemacht
     }
     public void incHealth(double amount){
-        if (vg.getWidth() <= bg.getWidth()){
+        if (vg.getWidth() < bg.getWidth()){
             vg.setWidth(vg.getWidth()+(bg.getWidth()*(amount/health)));         // Vermindert den Healthbar, um wie viel schaden angegeben wird
+            if (vg.getWidth() > bg.getWidth()) vg.setWidth(bg.getWidth());
             percantage = (int)Math.round(vg.getWidth()/bg.getWidth()*100);      // Passt die neue Prozentzahl an
         }
     }

@@ -7,7 +7,7 @@ public class Wall {
     private Rectangle shape;
 
     public Wall(double x, double y, double w, double h){
-        shape = new Rectangle(w, h, Color.BLACK);
+        shape = new Rectangle(w, h, Color.TRANSPARENT);
         shape.setX(x);
         shape.setY(y);
         shape.setWidth(w);
