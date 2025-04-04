@@ -38,11 +38,11 @@ public class Monster {
                 cooldown = 1000000000;
                 break;
             case 2:
-                health = 200;
+                health = 30;
                 damage = 30;
                 shape.setFill(Color.DARKRED);
                 SPEED = 40;
-                range = 300;
+                range = 250;
                 cooldown = 1000000000;
                 AVOID_DISTANCE = 150;
                 break;
@@ -53,8 +53,6 @@ public class Monster {
     public Circle getShape() {return shape;}        // Gibt das Objekt Circle zurück
     public double getX(){return shape.getCenterX();}                // return X Koordinate proportional von der Mitte der Figur
     public double getY(){return shape.getCenterY();}                // return Y Koordinate proportional von der Mitte der Figur
-    public double X(){return shape.getCenterX()-radius;}
-    public double Y(){return shape.getCenterY()-radius;}
     public boolean isAlive(){return alive;}
     public int getId(){return id;}
     public long getDeadSince(){return deadSince;}

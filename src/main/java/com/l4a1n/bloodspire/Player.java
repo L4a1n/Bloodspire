@@ -65,15 +65,13 @@ public class Player {
         double dirX = dx / distance;
         double dirY = dy / distance;
 
-
-
-        Projectile p1 = new Projectile(x, y, targetX, targetY, 0, 0, getDamage());            // Mittleres Projektil
+        Projectile p1 = new Projectile(x, y, targetX, targetY, 0, 0, getDamage());                                                  // Mittleres Projektil
 
         double[] leftDir = rotateVector(dirX, dirY, -angleOffset);
-        Projectile p2 = new Projectile(x, y, x + leftDir[0] * distance, y + leftDir[1] * distance, 0, 0, damage);
+        Projectile p2 = new Projectile(x, y, x + leftDir[0] * distance, y + leftDir[1] * distance, 0, 0, damage);   // Linkes Projektil
 
         double[] rightDir = rotateVector(dirX, dirY, angleOffset);
-        Projectile p3 = new Projectile(x, y, x + rightDir[0] * distance, y + rightDir[1] * distance, 0, 0, damage);
+        Projectile p3 = new Projectile(x, y, x + rightDir[0] * distance, y + rightDir[1] * distance, 0, 0, damage); // Rechtes Projektil
 
         projectiles.add(p1);
         projectiles.add(p2);
@@ -82,7 +80,7 @@ public class Player {
     }
 
     public void sprint(long time){
-
+        // NYA
     }
 
     // In der Update Methode wird die Position des Spielers aktualisiert und Kollisionsabfragen gemacht

@@ -136,18 +136,25 @@ public class Level {
                 double targetY = event.getY();
                 player.setTarget(targetX, targetY); // Zielposition setzen
             }
-            else if (event.getButton() == MouseButton.SECONDARY){
+            if (event.getButton() == MouseButton.SECONDARY){
                 switch (player.getCurrentAbility()){
                     case 0:
-                        Projectile projectile = new Projectile(player.getX(), player.getY(), event.getX(), event.getY(), 0, player.getCurrentAbility(), player.getDamage());
-                        projectiles.add(projectile);
-                        gamePane.getChildren().add(projectile.getShape());
+                        if (abilityBar.getSlotCooldown(0) == 0L){
+                            Projectile projectile = new Projectile(player.getX(), player.getY(), event.getX(), event.getY(), 0, player.getCurrentAbility(), player.getDamage());
+                            abilityBar.setSlotCooldown(0, 300000000L);
+                            projectiles.add(projectile);
+                            gamePane.getChildren().add(projectile.getShape());
+                        }
                         break;
                     case 1:
-                        player.fireSalve(projectiles, getGamePane(), player.getX(), player.getY(), event.getX(), event.getY());
+                        if (abilityBar.getSlotCooldown(1) == 0L){
+                            player.fireSalve(projectiles, getGamePane(), player.getX(), player.getY(), event.getX(), event.getY());
+                            abilityBar.setSlotCooldown(1, 5000000000L);
+                        }
                         break;
                 }
             }
+
         });
         // Wenn die Maus nur geclickt wird
         gamePane.setOnMousePressed((MouseEvent event) -> {
@@ -158,28 +165,32 @@ public class Level {
                 double targetY = event.getY();
                 player.setTarget(targetX, targetY); // Zielposition setzen
             }
-        });
-        // Wenn der Spieler auf das Monster klickt wird es angegriffen
-        gamePane.setOnMouseClicked((MouseEvent event) -> {
             if (event.getButton() == MouseButton.SECONDARY){
                 switch (player.getCurrentAbility()){
                     case 0:
-                        Projectile projectile = new Projectile(player.getX(), player.getY(), event.getX(), event.getY(), 0, player.getCurrentAbility(), player.getDamage());
-                        projectiles.add(projectile);
-                        gamePane.getChildren().add(projectile.getShape());
+                        if (abilityBar.getSlotCooldown(0) == 0L){
+                            Projectile projectile = new Projectile(player.getX(), player.getY(), event.getX(), event.getY(), 0, player.getCurrentAbility(), player.getDamage());
+                            abilityBar.setSlotCooldown(0, 300000000L);
+                            projectiles.add(projectile);
+                            gamePane.getChildren().add(projectile.getShape());
+                        }
                         break;
                     case 1:
-                        player.fireSalve(projectiles, getGamePane(), player.getX(), player.getY(), event.getX(), event.getY());
+                        if (abilityBar.getSlotCooldown(1) == 0L){
+                            player.fireSalve(projectiles, getGamePane(), player.getX(), player.getY(), event.getX(), event.getY());
+                            abilityBar.setSlotCooldown(1, 5000000000L);
+                        }
                         break;
                 }
             }
         });
+        // Wenn der Spieler auf das Monster klickt wird es angegriffen
     }
 
     private void setupKeyDown() {
         gamePane.sceneProperty().addListener((observable, oldScene, newScene) -> {
             if (newScene != null) { // Sicherstellen, dass die Scene existiert
-                newScene.setOnKeyPressed(event -> handleKeyPress(event));
+                newScene.setOnKeyPressed(this::handleKeyPress);
             }
         });
     }
@@ -187,20 +198,30 @@ public class Level {
     private void handleKeyPress(KeyEvent event){
         switch (event.getCode()) {
             case DIGIT1:
-                abilityBar.setActiveSlot(0);
-                player.setCurrentAbility(0);
+                if (!abilityBar.getLockedSlots(0)){
+                    abilityBar.setActiveSlot(0);
+                    player.setCurrentAbility(0);
+                    player.setDamage(20);
+                }
                 break;
             case DIGIT2:
-                abilityBar.setActiveSlot(1);
-                player.setCurrentAbility(1);
+                if (!abilityBar.getLockedSlots(1)){
+                    abilityBar.setActiveSlot(1);
+                    player.setCurrentAbility(1);
+                    player.setDamage(50);
+                }
                 break;
             case DIGIT3:
-                abilityBar.setActiveSlot(2);
-                player.setCurrentAbility(2);
+                if (!abilityBar.getLockedSlots(2)){
+                    abilityBar.setActiveSlot(2);
+                    player.setCurrentAbility(2);
+                }
                 break;
             case DIGIT4:
-                abilityBar.setActiveSlot(3);
-                player.setCurrentAbility(3);
+                if (!abilityBar.getLockedSlots(3)){
+                    abilityBar.setActiveSlot(3);
+                    player.setCurrentAbility(3);
+                }
                 break;
             case SPACE:
         }
@@ -224,6 +245,8 @@ public class Level {
                 // Wird benutzt um die Geschwindigkeit anzupassen, sodass die Bewwegung Framerate-unabhängig ist
                 double dTime = (now - lastUpdate) / 1_000_000_000.0;
                 lastUpdate = now;
+
+                abilityBar.animate(dTime);
 
                 for (Spawnarea spawn : spawnareas){
                     spawn.animate(dTime);

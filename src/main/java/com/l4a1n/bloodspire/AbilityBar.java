@@ -16,7 +16,8 @@ public class AbilityBar {
     private List<Rectangle> slots;
     private List<Canvas> abilityIcons;
     private List<Rectangle> overlays;
-    private List<Boolean> slotsOnCooldown;
+    private List<Rectangle> cooldownOverlays;
+    private List<Long> slotsCooldown;
     private List<Boolean> slotsLocked;
     private ColorAdjust greyscaleEffect;
     private int activeSlot = 0;
@@ -27,7 +28,8 @@ public class AbilityBar {
         abilityIcons = new ArrayList<>();
         overlays = new ArrayList<>();
         slotsLocked = new ArrayList<>();
-        slotsOnCooldown = new ArrayList<>();
+        slotsCooldown= new ArrayList<>();
+        cooldownOverlays = new ArrayList<>();
 
         greyscaleEffect = new ColorAdjust();
         greyscaleEffect.setSaturation(-1);
@@ -49,7 +51,12 @@ public class AbilityBar {
             overlay.setVisible(true);
             overlays.add(overlay);
 
-            slotsOnCooldown.add(false);
+            Rectangle cooldownOverlay = new Rectangle(x, y+h, w, 0);
+            cooldownOverlay.setFill(Color.rgb(255, 255, 255, 0.7));
+            cooldownOverlay.setVisible(false);
+            cooldownOverlays.add(cooldownOverlay);
+
+            slotsCooldown.add(0L);
             if (i == 0){slotsLocked.add(false);}
             else slotsLocked.add(true);
 
@@ -60,12 +67,28 @@ public class AbilityBar {
     public List<Rectangle> getSlots(){return slots;}
     public  List<Canvas> getAbilityIcons(){return abilityIcons;}
     public List<Rectangle> getOverlays(){return overlays;}
+    public Long getSlotCooldown(int i){return slotsCooldown.get(i);}
+    public void setSlotCooldown(int i, long value){slotsCooldown.set(i, value);}
+    public boolean getLockedSlots(int i){return slotsLocked.get(i);}
 
     public void unlockSlot(int slot){
         slotsLocked.set(slot, false);
         abilityIcons.get(slot).setEffect(null);
     }
     public void lockSlot(int slot){slotsLocked.set(slot, false);}
+
+    public void animate(double dTime) {
+        for (int i = 0; i < slotsCooldown.size(); i++) {
+            long slot = slotsCooldown.get(i);
+            if (slot == 0L) continue;
+
+            slot -= (long)(dTime * 1_000_000_000.0);
+            if (slot < 0L) slot = 0L;
+
+            slotsCooldown.set(i, slot);
+            System.out.println(slot);
+        }
+    }
 
     public void setActiveSlot(int slot){
         for (int s = 0; s < slots.size(); s++){
