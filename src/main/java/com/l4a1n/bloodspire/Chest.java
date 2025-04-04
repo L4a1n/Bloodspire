@@ -60,7 +60,7 @@ public class Chest {
     public long getTimeSinceUsed(){return timeSinceUsed;}
 
     private String generateRandomItem() {
-        List<String> items = Arrays.asList("Salve", "Wave", "Blast", "HealthPotion");
+        List<String> items = Arrays.asList("Salve", "HealthPotion", "HealthPotion");
         Random random = new Random();
         return items.get(random.nextInt(items.size()));
     }

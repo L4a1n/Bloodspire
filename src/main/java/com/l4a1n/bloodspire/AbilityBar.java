@@ -39,7 +39,6 @@ public class AbilityBar {
             slots.get(i).setFill(Color.LIGHTGRAY);
             slots.get(i).setStroke(Color.rgb(51,0,25));
             slots.get(i).setStrokeWidth(8);
-            System.out.println("Added Slot");
 
             Canvas canvas = new Canvas(w, h);
             canvas.setLayoutX(x);
@@ -67,6 +66,7 @@ public class AbilityBar {
     public List<Rectangle> getSlots(){return slots;}
     public  List<Canvas> getAbilityIcons(){return abilityIcons;}
     public List<Rectangle> getOverlays(){return overlays;}
+    public List<Rectangle> getCooldownOverlays(){return cooldownOverlays;}
     public Long getSlotCooldown(int i){return slotsCooldown.get(i);}
     public void setSlotCooldown(int i, long value){slotsCooldown.set(i, value);}
     public boolean getLockedSlots(int i){return slotsLocked.get(i);}
@@ -86,7 +86,6 @@ public class AbilityBar {
             if (slot < 0L) slot = 0L;
 
             slotsCooldown.set(i, slot);
-            System.out.println(slot);
         }
     }
 

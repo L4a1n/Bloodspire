@@ -45,17 +45,20 @@ public class Healthbar {
 
     // Animation für niedriges Leben
     public void animate(double dTime){
-        if (animCount < 120){           // Zählt einen Animationscounter hoch und erhöht ebenfalls die Farben
-            animCount ++;
-            colorG ++;
-            colorB ++;
-            vg.setFill(Color.rgb(240, colorG, colorB));
+        if (percantage <= 40){              // Wenn die Prozentzahl unter oder gleich 40 ist, dann wird die Animation ausgeführt
+            if (animCount < 120){           // Zählt einen Animationscounter hoch und erhöht ebenfalls die Farben
+                animCount ++;
+                colorG ++;
+                colorB ++;
+                vg.setFill(Color.rgb(240, colorG, colorB));
+            }
+            else{       // Sobald das Ziel erreicht ist, wird alles wieder auf null gesetzt und der Kreislauf beginnt erneut
+                animCount = 0;
+                colorB = 0;
+                colorG = 0;
+            }
         }
-        else{       // Sobald das Ziel erreicht ist, wird alles wieder auf Null gesetzt und der Kreislauf beginnt erneut
-            animCount = 0;
-            colorB = 0;
-            colorG = 0;
-        }
+        else vg.setFill(Color.rgb(240, 0, 0));      // Andernfalls wird die Farbe wieder auf die ursprüngliche Farbe zurückgesetzt
     }
 
     public void setPos(double newX, double newY){           // Passt die Position des Healthbars an
@@ -72,7 +75,7 @@ public class Healthbar {
     public void incHealth(double amount){
         if (vg.getWidth() < bg.getWidth()){
             vg.setWidth(vg.getWidth()+(bg.getWidth()*(amount/health)));         // Vermindert den Healthbar, um wie viel schaden angegeben wird
-            if (vg.getWidth() > bg.getWidth()) vg.setWidth(bg.getWidth());
+            if (vg.getWidth() > bg.getWidth()) vg.setWidth(bg.getWidth());      // Checkt, ob zu viel geheilt wurde und falls ja, dann wird der Balken wieder angepasst
             percantage = (int)Math.round(vg.getWidth()/bg.getWidth()*100);      // Passt die neue Prozentzahl an
         }
     }

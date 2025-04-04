@@ -27,6 +27,9 @@ public class Level {
     private List<Chest> chests;
     private List<Spawnarea> spawnareas;
     private Random random;
+    private boolean rightMouseDown = false;
+    private double mouseX = 0, mouseY = 0;
+    private MouseEvent currentMouseEvent = null;
 
     public Level() {
         gamePane = new Pane();
@@ -99,9 +102,11 @@ public class Level {
         for (Canvas icon : abilityBar.getAbilityIcons()){
             gamePane.getChildren().add(icon);
         }
-
         for (Rectangle overlay : abilityBar.getOverlays()){
             gamePane.getChildren().add(overlay);
+        }
+        for (Rectangle cooldownOverlay : abilityBar.getCooldownOverlays()){
+            gamePane.getChildren().add(cooldownOverlay);
         }
     }
 
@@ -128,36 +133,23 @@ public class Level {
 
     private void setupMouseClick() {
         // Wenn die Maus gezogen wird...
+        gamePane.setOnMouseMoved((MouseEvent event) ->{
+            currentMouseEvent = event;
+        });
         gamePane.setOnMouseDragged((MouseEvent event) -> {
+            currentMouseEvent = event;
             // Wenn es die Linke Maustaste ist
             if (event.getButton() == MouseButton.PRIMARY){
                 // Setzt die Koordinaten der Maus zu Zielkoordinaten des Spielers
                 double targetX = event.getX();
                 double targetY = event.getY();
                 player.setTarget(targetX, targetY); // Zielposition setzen
-            }
-            if (event.getButton() == MouseButton.SECONDARY){
-                switch (player.getCurrentAbility()){
-                    case 0:
-                        if (abilityBar.getSlotCooldown(0) == 0L){
-                            Projectile projectile = new Projectile(player.getX(), player.getY(), event.getX(), event.getY(), 0, player.getCurrentAbility(), player.getDamage());
-                            abilityBar.setSlotCooldown(0, 300000000L);
-                            projectiles.add(projectile);
-                            gamePane.getChildren().add(projectile.getShape());
-                        }
-                        break;
-                    case 1:
-                        if (abilityBar.getSlotCooldown(1) == 0L){
-                            player.fireSalve(projectiles, getGamePane(), player.getX(), player.getY(), event.getX(), event.getY());
-                            abilityBar.setSlotCooldown(1, 5000000000L);
-                        }
-                        break;
-                }
             }
 
         });
         // Wenn die Maus nur geclickt wird
         gamePane.setOnMousePressed((MouseEvent event) -> {
+            currentMouseEvent = event;
             // Wenn es die Linke Maustaste ist
             if (event.getButton() == MouseButton.PRIMARY){
                 // Setzt die Koordinaten der Maus zu Zielkoordinaten des Spielers
@@ -166,22 +158,12 @@ public class Level {
                 player.setTarget(targetX, targetY); // Zielposition setzen
             }
             if (event.getButton() == MouseButton.SECONDARY){
-                switch (player.getCurrentAbility()){
-                    case 0:
-                        if (abilityBar.getSlotCooldown(0) == 0L){
-                            Projectile projectile = new Projectile(player.getX(), player.getY(), event.getX(), event.getY(), 0, player.getCurrentAbility(), player.getDamage());
-                            abilityBar.setSlotCooldown(0, 300000000L);
-                            projectiles.add(projectile);
-                            gamePane.getChildren().add(projectile.getShape());
-                        }
-                        break;
-                    case 1:
-                        if (abilityBar.getSlotCooldown(1) == 0L){
-                            player.fireSalve(projectiles, getGamePane(), player.getX(), player.getY(), event.getX(), event.getY());
-                            abilityBar.setSlotCooldown(1, 5000000000L);
-                        }
-                        break;
-                }
+                rightMouseDown = true;
+            }
+        });
+        gamePane.setOnMouseReleased((MouseEvent event) -> {
+            if (event.getButton() == MouseButton.SECONDARY){
+                rightMouseDown = false;
             }
         });
         // Wenn der Spieler auf das Monster klickt wird es angegriffen
@@ -246,6 +228,32 @@ public class Level {
                 double dTime = (now - lastUpdate) / 1_000_000_000.0;
                 lastUpdate = now;
 
+                if (currentMouseEvent != null) {
+                    mouseX = currentMouseEvent.getX();
+                    mouseY = currentMouseEvent.getY();
+                }
+
+                if (rightMouseDown){
+                    switch (player.getCurrentAbility()){
+                        case 0:
+                            if (abilityBar.getSlotCooldown(0) == 0L){
+                                System.out.println(mouseX + " " + mouseY);
+                                Projectile projectile = new Projectile(player.getX(), player.getY(), mouseX, mouseY, 0, player.getCurrentAbility(), player.getDamage());
+                                abilityBar.setSlotCooldown(0, 300000000L);
+                                projectiles.add(projectile);
+                                gamePane.getChildren().add(projectile.getShape());
+                            }
+                            break;
+                        case 1:
+                            if (abilityBar.getSlotCooldown(1) == 0L){
+                                player.fireSalve(projectiles, getGamePane(), player.getX(), player.getY(), mouseX, mouseY);
+                                abilityBar.setSlotCooldown(1, 1000000000L);
+                            }
+                            break;
+                        }
+                    }
+
+
                 abilityBar.animate(dTime);
 
                 for (Spawnarea spawn : spawnareas){
@@ -287,8 +295,8 @@ public class Level {
                     projectile.update(dTime, walls);
                 }
 
-                player.update(dTime, walls); // Spielerupdate
-                if (healthbars.get(0).getPercantage() <= 40) healthbars.get(0).animate(dTime);  // Wenn das Leben des Spielers unter 40% ist dann wird der Healthbar animiert
+                player.update(dTime, walls); // Spieler-Update
+                healthbars.get(0).animate(dTime);   // Spieler-Healthbar animation
 
                 for (Chest chest : chests){
  //                   if ((player.getX() >= chest.getX() && player.getX() <= chest.getX()+ chest.getSize()) && (player.getY() >= chest.getY() && player.getY() <= chest.getY()+ chest.getSize()) && chest.getAccessible()){
