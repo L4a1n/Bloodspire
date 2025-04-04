@@ -2,10 +2,24 @@ package com.l4a1n.bloodspire;
 
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
+
 import java.util.List;
 
 public class Monster {
     private Circle shape;
+    private Image spriteSheet;
+    private Canvas canvas;
+    private GraphicsContext gc;
+    private int frameSize = 32;
+    private int numFrames = 8;
+    private int currentFrame = 0;
+    private double frameDuration = 10;
+    private double lastUpdate = 0;
+    private double size = 40;
     private double SPEED = 110;                // Geschwindigkeit des Monsters
     private double AVOID_DISTANCE = 40;        // Abstand der zu andern Entitäten eingehalten werden soll
     private int health;
@@ -21,6 +35,7 @@ public class Monster {
     private long cooldown;
     private double reciveKnockback = 1;
     private boolean droppedLoot;
+    private int directionRow = 0;
 
     public Monster(double x, double y, int id, int kind) {
         shape = new Circle(radius, Color.RED);
@@ -30,6 +45,11 @@ public class Monster {
         droppedLoot = false;
         this.id = id;
         this.kind = kind;
+        canvas = new Canvas(size, size);
+        canvas.setLayoutX(x);
+        canvas.setLayoutY(y);
+        gc = canvas.getGraphicsContext2D();
+        gc.setImageSmoothing(false);
         switch (kind){
             case 1:
                 health = 100;
@@ -38,9 +58,11 @@ public class Monster {
                 cooldown = 1000000000;
                 break;
             case 2:
+                spriteSheet = new Image(getClass().getResource("/EvilEye_Spritesheet.png").toExternalForm());
+
                 health = 30;
                 damage = 30;
-                shape.setFill(Color.DARKRED);
+                shape.setVisible(false);
                 SPEED = 40;
                 range = 250;
                 cooldown = 1000000000;
@@ -51,6 +73,7 @@ public class Monster {
 
     // Getters
     public Circle getShape() {return shape;}        // Gibt das Objekt Circle zurück
+    public Canvas getCanvas(){return canvas;}
     public double getX(){return shape.getCenterX();}                // return X Koordinate proportional von der Mitte der Figur
     public double getY(){return shape.getCenterY();}                // return Y Koordinate proportional von der Mitte der Figur
     public boolean isAlive(){return alive;}
@@ -67,11 +90,51 @@ public class Monster {
     public boolean getDroppedLoot(){return droppedLoot;}
     public void setDroppedLoot(){droppedLoot = true;}
 
+    public void animate(double dTime){
+        if (spriteSheet == null) return;
+
+        if (attacking) {
+            lastUpdate += dTime;
+            if (lastUpdate >= 1.0 / frameDuration){
+                gc.clearRect(0, 0, frameSize, frameSize);
+                int frameX = (currentFrame % numFrames) * frameSize;
+                int frameY = directionRow * frameSize;
+
+                gc.drawImage(spriteSheet, frameX, frameY, frameSize, frameSize, 0, 0, size, size);
+                currentFrame = (currentFrame + 1) % numFrames;
+                lastUpdate = 0;
+            }
+        } else {
+            // Just draw first frame of current direction
+            gc.clearRect(0, 0, frameSize, frameSize);
+            int frameY = directionRow * frameSize;
+            gc.drawImage(spriteSheet, 0, frameY, frameSize, frameSize, 0, 0, size, size);
+        }
+    }
+
     // Positions- und Collisions Update-Methode
     public void moveTowards(double targetX, double targetY, List<Monster> monsters, List<Wall> walls, double dTime) {
         double dx = targetX - shape.getCenterX();   // X Differenz zu Target
         double dy = targetY - shape.getCenterY();   // Y Differenz zu Target
         double distance = Math.sqrt(dx * dx + dy * dy);     // Rechnet die Distanz zu Target aus
+        double angle = Math.atan2(dy, dx); // Radians: -π to π
+
+        if (angle >= -Math.PI / 8 && angle < Math.PI / 8)
+            directionRow = 3; // → right
+        else if (angle >= Math.PI / 8 && angle < 3 * Math.PI / 8)
+            directionRow = 0; // ↘ right-down
+        else if (angle >= 3 * Math.PI / 8 && angle < 5 * Math.PI / 8)
+            directionRow = 2; // ↓ down
+        else if (angle >= 5 * Math.PI / 8 && angle < 7 * Math.PI / 8)
+            directionRow = 1; // ↙ left-down
+        else if (angle >= 7 * Math.PI / 8 || angle < -7 * Math.PI / 8)
+            directionRow = 4; // ← left
+        else if (angle >= -7 * Math.PI / 8 && angle < -5 * Math.PI / 8)
+            directionRow = 5; // ↑ up
+        else if (angle >= -5 * Math.PI / 8 && angle < -3 * Math.PI / 8)
+            directionRow = 5; // ↑ up
+        else if (angle >= -3 * Math.PI / 8 && angle < -Math.PI / 8)
+            directionRow = 5; // ↑ up
 
         if (distance <= range && alive){attacking = true;}
         else {attacking = false;}
@@ -100,8 +163,8 @@ public class Monster {
             if (wall.collidesWith(getX() + moveX, getY(), radius)) collideX = true;     // Kollision auf X dann True
             if (wall.collidesWith(getX(), getY() + moveY, radius)) collideY = true;     // Kollision auf Y dann True
         }
-        if (!collideX) shape.setCenterX(getX() + moveX);    // Wenn auf X keine Kollision dann bewegen auf X möglich
-        if (!collideY) shape.setCenterY(getY() + moveY);    // Wenn auf Y keine Kollision dann bewegen auf Y möglich
+        if (!collideX) shape.setCenterX(getX() + moveX); canvas.setLayoutX((getX() - radius) + moveX);    // Wenn auf X keine Kollision dann bewegen auf X möglich
+        if (!collideY) shape.setCenterY(getY() + moveY); canvas.setLayoutY((getY() - radius) + moveY);    // Wenn auf Y keine Kollision dann bewegen auf Y möglich
         if (getReciveKnockback() < 1) setReciveKnockback(getReciveKnockback()+0.1);       // Sorgt dafür das der erlittene Knockback immer weniger wird
     }
 

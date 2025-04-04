@@ -262,7 +262,7 @@ public class Level {
                         if (monsters.isEmpty()){
                             Monster monster = new Monster(spawn.getX()+ random.nextDouble(spawn.getSize()), spawn.getY()+ random.nextDouble(spawn.getSize()), 1, random.nextInt(2)+1);
                             monsters.add(monster);
-                            gamePane.getChildren().add(monster.getShape());
+                            gamePane.getChildren().addAll(monster.getShape(), monster.getCanvas());
                             Healthbar healthbar = new Healthbar(monster.getX()-20, monster.getY()-20, monster.getHealth(), 1);
                             healthbars.add(healthbar);
                             gamePane.getChildren().add(healthbar.getBg());
@@ -272,7 +272,7 @@ public class Level {
                         else {
                             Monster monster = new Monster(spawn.getX()+ random.nextDouble(spawn.getSize()), spawn.getY()+ random.nextDouble(spawn.getSize()), monsters.get(monsters.size()-1).getId()+1, random.nextInt(2)+1);
                             monsters.add(monster);
-                            gamePane.getChildren().add(monster.getShape());
+                            gamePane.getChildren().addAll(monster.getShape(), monster.getCanvas());
                             Healthbar healthbar = new Healthbar(monster.getX()-20, monster.getY()-20, monster.getHealth(), monsters.get(monsters.size()-1).getId());
                             healthbars.add(healthbar);
                             gamePane.getChildren().add(healthbar.getBg());
@@ -360,6 +360,7 @@ public class Level {
                         monster.moveTowards(player.getX(), player.getY(), monsters, walls, dTime);  // Sofern ein Monster am Leben ist bewegt es sich
                         switch (monster.getKind()){     // Monster attackieren je nach Kind of Monster
                             case 2:
+                                monster.animate(dTime);
                                 if (monster.getAttacking() && monster.getAttackCooldown() <= now){
                                     Projectile projectile = new Projectile(monster.getX(), monster.getY(), player.getX(), player.getY(), 1, 0, monster.getDamage());
                                     projectiles.add(projectile);
@@ -408,6 +409,7 @@ public class Level {
                         }
                         if (monster.getDeadSince() <= now){
                             gamePane.getChildren().remove(monster.getShape());
+                            gamePane.getChildren().remove(monster.getCanvas());
                             monsters.remove(monster);
                             for (Healthbar hb : healthbars){
                                 if (monster.getId() == hb.getId()){

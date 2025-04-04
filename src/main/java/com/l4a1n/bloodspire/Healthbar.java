@@ -63,9 +63,9 @@ public class Healthbar {
 
     public void setPos(double newX, double newY){           // Passt die Position des Healthbars an
         bg.setX(newX-25);
-        bg.setY(newY-20);
+        bg.setY(newY-25);
         vg.setX(newX-25);
-        vg.setY(newY-20);
+        vg.setY(newY-25);
     }
     public void decHealth(double damage){
         vg.setWidth(vg.getWidth()-(bg.getWidth()*(damage/(double)health)));         // Vermindert den Healthbar, um wie viel schaden angegeben wird

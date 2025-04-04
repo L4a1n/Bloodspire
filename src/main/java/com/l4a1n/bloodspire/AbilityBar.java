@@ -18,6 +18,7 @@ public class AbilityBar {
     private List<Rectangle> overlays;
     private List<Rectangle> cooldownOverlays;
     private List<Long> slotsCooldown;
+    private List<Long> slotsMaxCooldown;
     private List<Boolean> slotsLocked;
     private ColorAdjust greyscaleEffect;
     private int activeSlot = 0;
@@ -28,7 +29,8 @@ public class AbilityBar {
         abilityIcons = new ArrayList<>();
         overlays = new ArrayList<>();
         slotsLocked = new ArrayList<>();
-        slotsCooldown= new ArrayList<>();
+        slotsCooldown = new ArrayList<>();
+        slotsMaxCooldown = new ArrayList<>();
         cooldownOverlays = new ArrayList<>();
 
         greyscaleEffect = new ColorAdjust();
@@ -56,6 +58,7 @@ public class AbilityBar {
             cooldownOverlays.add(cooldownOverlay);
 
             slotsCooldown.add(0L);
+            slotsMaxCooldown.add(0L);
             if (i == 0){slotsLocked.add(false);}
             else slotsLocked.add(true);
 
@@ -68,7 +71,11 @@ public class AbilityBar {
     public List<Rectangle> getOverlays(){return overlays;}
     public List<Rectangle> getCooldownOverlays(){return cooldownOverlays;}
     public Long getSlotCooldown(int i){return slotsCooldown.get(i);}
-    public void setSlotCooldown(int i, long value){slotsCooldown.set(i, value);}
+    public void setSlotCooldown(int i, long value){
+        slotsCooldown.set(i, value);
+        slotsMaxCooldown.set(i, value);
+        cooldownOverlays.get(i).setVisible(true);
+    }
     public boolean getLockedSlots(int i){return slotsLocked.get(i);}
 
     public void unlockSlot(int slot){
@@ -79,13 +86,26 @@ public class AbilityBar {
 
     public void animate(double dTime) {
         for (int i = 0; i < slotsCooldown.size(); i++) {
-            long slot = slotsCooldown.get(i);
-            if (slot == 0L) continue;
+            long current = slotsCooldown.get(i);
+            long max = slotsMaxCooldown.get(i);
+            if (current == 0L) continue;
 
-            slot -= (long)(dTime * 1_000_000_000.0);
-            if (slot < 0L) slot = 0L;
+            current -= (long)(dTime * 1_000_000_000.0);
+            if (current < 0L) {
+                current = 0L;
+                cooldownOverlays.get(i).setVisible(false);
+            } else {
+                cooldownOverlays.get(i).setVisible(true);
 
-            slotsCooldown.set(i, slot);
+                double progress = 1.0 - (double) current / max;
+                double currentHeight = h * progress;
+
+                Rectangle overlay = cooldownOverlays.get(i);
+                overlay.setHeight(currentHeight);
+                overlay.setY(slots.get(i).getY() + h - currentHeight);
+            }
+
+            slotsCooldown.set(i, current);
         }
     }
 
