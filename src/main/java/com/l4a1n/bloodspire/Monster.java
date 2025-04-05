@@ -36,6 +36,8 @@ public class Monster {
     private double reciveKnockback = 1;
     private boolean droppedLoot;
     private int directionRow = 0;
+    private int xp;
+    private boolean returnedXP = false;
 
     public Monster(double x, double y, int id, int kind) {
         shape = new Circle(radius, Color.RED);
@@ -56,6 +58,7 @@ public class Monster {
                 damage = 10;
                 range = 50;
                 cooldown = 1000000000;
+                xp = 300;
                 break;
             case 2:
                 spriteSheet = new Image(getClass().getResource("/EvilEye_Spritesheet.png").toExternalForm());
@@ -67,6 +70,7 @@ public class Monster {
                 range = 250;
                 cooldown = 1000000000;
                 AVOID_DISTANCE = 150;
+                xp = 100;
                 break;
         }
     }
@@ -89,6 +93,8 @@ public class Monster {
     private void setReciveKnockback(double kb){reciveKnockback = kb;}
     public boolean getDroppedLoot(){return droppedLoot;}
     public void setDroppedLoot(){droppedLoot = true;}
+    public int getXp(){returnedXP = true; return xp;}
+    public boolean getReturnedXP(){return returnedXP;}
 
     public void animate(double dTime){
         if (spriteSheet == null) return;

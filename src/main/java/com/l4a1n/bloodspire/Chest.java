@@ -1,9 +1,9 @@
 package com.l4a1n.bloodspire;
 
+import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.image.Image;
-
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 
@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-public class Chest {
+public class Chest extends Group {
     private Rectangle shape;
     private String item;
     private boolean used;
@@ -25,19 +25,18 @@ public class Chest {
 
     public Chest(double x, double y) {
         shape = new Rectangle(size, size);
-        shape.setX(x);
-        shape.setY(y);
         shape.setFill(Color.TRANSPARENT);
 
         canvas = new Canvas(size, size);
-        canvas.setLayoutX(x);
-        canvas.setLayoutY(y);
+
+        this.setLayoutX(x);
+        this.setLayoutY(y);
 
         opened = new Image(getClass().getResource("/Chest_Opened.png").toExternalForm());
         closed = new Image(getClass().getResource("/Chest_Closed.png").toExternalForm());
 
         gc = canvas.getGraphicsContext2D();
-        gc.clearRect(x, y, size, size);
+        gc.clearRect(0, 0, size, size);
         gc.setImageSmoothing(false);
         gc.drawImage(closed, 0, 0, size, size);
 
@@ -45,25 +44,17 @@ public class Chest {
         accesible = true;
 
         item = generateRandomItem();
+
+        this.getChildren().addAll(canvas, shape);
     }
 
-    public double getX(){return shape.getX();}
-    public double getY(){return shape.getY();}
-    public double getSize(){return size;}
-    public Rectangle getShape() {return shape;}
-    public Canvas getCanvas(){return canvas;}
-    public String getItem(){return item;}
-    public void setInaccessible(){accesible = false;}
-    public boolean getUsed(){return used;}
-    public void setUsed(long time){used = true; timeSinceUsed = time + 5000000000L;}
-    public boolean getAccessible(){return accesible;}
-    public long getTimeSinceUsed(){return timeSinceUsed;}
-
-    private String generateRandomItem() {
-        List<String> items = Arrays.asList("Salve", "HealthPotion", "HealthPotion");
-        Random random = new Random();
-        return items.get(random.nextInt(items.size()));
-    }
+    public Rectangle getShape(){return shape;}
+    public String getItem(){ return item; }
+    public boolean getUsed(){ return used; }
+    public void setUsed(long time) { used = true; timeSinceUsed = time + 5000000000L; }
+    public boolean getAccessible(){ return accesible; }
+    public void setInaccessible(){ accesible = false; }
+    public long getTimeSinceUsed(){ return timeSinceUsed; }
 
     public String openChest() {
         if (!used && accesible){
@@ -71,5 +62,11 @@ public class Chest {
         }
         gc.drawImage(opened, 0, 0, size, size);
         return item;
+    }
+
+    private String generateRandomItem() {
+        List<String> items = Arrays.asList("Salve", "HealthPotion", "HealthPotion");
+        Random random = new Random();
+        return items.get(random.nextInt(items.size()));
     }
 }

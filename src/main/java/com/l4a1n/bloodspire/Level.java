@@ -69,15 +69,15 @@ public class Level {
 
     private void setupWalls(){
         walls = new ArrayList<>();
-        
+
         walls.add(new Wall(378, 499, 243, 130));
         walls.add(new Wall(0, 990, 1200, 10)); // Unten
         walls.add(new Wall(0, 0, 1200,40)); // Oben
         walls.add(new Wall(0, 0, 10, 1000)); // Links
         walls.add(new Wall(1190, 0, 10, 1000)); // Rechts
-    
+
         for (Wall wall : walls){
-          gamePane.getChildren().add(wall.getShape());
+            gamePane.getChildren().add(wall.getShape());
         }
 
     }
@@ -126,8 +126,7 @@ public class Level {
 
         chests.add(new Chest(random.nextInt(700) + 50, random.nextInt(700) + 50));
         for (Chest chest : chests){
-            gamePane.getChildren().add(chest.getShape());
-            gamePane.getChildren().add(chest.getCanvas());
+            gamePane.getChildren().add(chest);
         }
     }
 
@@ -237,7 +236,6 @@ public class Level {
                     switch (player.getCurrentAbility()){
                         case 0:
                             if (abilityBar.getSlotCooldown(0) == 0L){
-                                System.out.println(mouseX + " " + mouseY);
                                 Projectile projectile = new Projectile(player.getX(), player.getY(), mouseX, mouseY, 0, player.getCurrentAbility(), player.getDamage());
                                 abilityBar.setSlotCooldown(0, 300000000L);
                                 projectiles.add(projectile);
@@ -250,8 +248,8 @@ public class Level {
                                 abilityBar.setSlotCooldown(1, 1000000000L);
                             }
                             break;
-                        }
                     }
+                }
 
 
                 abilityBar.animate(dTime);
@@ -267,7 +265,6 @@ public class Level {
                             healthbars.add(healthbar);
                             gamePane.getChildren().add(healthbar.getBg());
                             gamePane.getChildren().add(healthbar.getVg());
-                            System.out.println(monsters.get(monsters.size()-1).getId());
                         }
                         else {
                             Monster monster = new Monster(spawn.getX()+ random.nextDouble(spawn.getSize()), spawn.getY()+ random.nextDouble(spawn.getSize()), monsters.get(monsters.size()-1).getId()+1, random.nextInt(2)+1);
@@ -277,7 +274,6 @@ public class Level {
                             healthbars.add(healthbar);
                             gamePane.getChildren().add(healthbar.getBg());
                             gamePane.getChildren().add(healthbar.getVg());
-                            System.out.println(monsters.get(monsters.size()-1).getId());
                         }
                     }
                 }
@@ -299,8 +295,9 @@ public class Level {
                 healthbars.get(0).animate(dTime);   // Spieler-Healthbar animation
 
                 for (Chest chest : chests){
- //                   if ((player.getX() >= chest.getX() && player.getX() <= chest.getX()+ chest.getSize()) && (player.getY() >= chest.getY() && player.getY() <= chest.getY()+ chest.getSize()) && chest.getAccessible()){
+                    //                   if ((player.getX() >= chest.getX() && player.getX() <= chest.getX()+ chest.getSize()) && (player.getY() >= chest.getY() && player.getY() <= chest.getY()+ chest.getSize()) && chest.getAccessible()){
                     Shape intersection = Shape.intersect(player.getShape(), chest.getShape());
+                    System.out.println("Test");
                     if (!intersection.getBoundsInLocal().isEmpty() && chest.getAccessible()){
                         String item = chest.openChest();
                         switch (item){
@@ -334,8 +331,7 @@ public class Level {
                         }
                     }
                     if (chest.getTimeSinceUsed() < now && chest.getUsed()){
-                        gamePane.getChildren().remove(chest.getCanvas());
-                        gamePane.getChildren().remove(chest.getShape());
+                        gamePane.getChildren().remove(chest);
                         chests.remove(chest);
                         break;
                     }
@@ -404,7 +400,7 @@ public class Level {
                             if (random.nextInt(10) == 1){
                                 Chest chest = new Chest(monster.getX(), monster.getY());
                                 chests.add(chest);
-                                gamePane.getChildren().add(chest.getCanvas());
+                                gamePane.getChildren().add(chest);
                             }
                         }
                         if (monster.getDeadSince() <= now){

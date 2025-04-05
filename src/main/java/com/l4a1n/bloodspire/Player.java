@@ -17,6 +17,7 @@ public class Player {
     private double knockback = -2;
     private double distance;
     private int currentAbility;
+    private int level = 1;
 
     public Player(double x, double y) {
         shape = new Circle(radius, Color.BLUE);
@@ -38,6 +39,8 @@ public class Player {
     public void heal(int amount){health += amount;}
     public int getCurrentAbility(){return currentAbility;}
     public void setCurrentAbility(int i){currentAbility = i;}
+    public int getLevel(){return level;}
+    public void increaseLevel(){level++;}
 
     public void setDamage(int damage){this. damage = damage;}   // Legt den Schaden fest, den der Spieler verursacht
 
