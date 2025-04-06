@@ -12,7 +12,7 @@ public class Player {
     private double targetY;
     private int SPEED = 150;
     private int health = 1000;
-    private int radius = 20;
+    private int radius = 10;
     private int damage = 25;
     private double knockback = -2;
     private double distance;

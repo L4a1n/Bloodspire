@@ -8,13 +8,12 @@ public class XPBar {
     private Rectangle vg;
     private Player player;
 
-    private double width = 1180;
-    private double height = 14;
-    private double margin = 20; // distance from bottom
+    private double width = 1260;
+    private double height = 15;
 
     public XPBar(Player player){
-        bg = new Rectangle(0, 0, width, height);
-        vg = new Rectangle(0, 0, 0, height);
+        bg = new Rectangle(10, 720, width, height);
+        vg = new Rectangle(10, 720, 0, height);
 
         bg.setFill(Color.rgb(51, 0, 25));
         vg.setFill(Color.rgb(204, 0, 102));
@@ -32,16 +31,5 @@ public class XPBar {
             player.increaseLevel();
             vg.setWidth(0);
         }
-    }
-
-    // Call this whenever the window size changes or on update
-    public void updatePosition(double sceneWidth, double sceneHeight){
-        double x = (sceneWidth - width) / 2.0;
-        double y = sceneHeight - height - margin;
-
-        bg.setX(x);
-        bg.setY(y);
-        vg.setX(x);
-        vg.setY(y);
     }
 }

@@ -27,7 +27,7 @@ public class Healthbar {
         }
         else {
             w = 50;
-            h = 10;
+            h = 5;
         }
         bg = new Rectangle(w,h, Color.BLACK);
         bg.setX(x);

@@ -19,12 +19,11 @@ public class Monster {
     private int currentFrame = 0;
     private double frameDuration = 10;
     private double lastUpdate = 0;
-    private double size = 40;
-    private double SPEED = 110;                // Geschwindigkeit des Monsters
+    private double SPEED = 80;                // Geschwindigkeit des Monsters
     private double AVOID_DISTANCE = 40;        // Abstand der zu andern Entitäten eingehalten werden soll
     private int health;
     private boolean alive;
-    private double radius = 20;
+    private double radius = 10;
     private int id;
     private long deadSince;
     private boolean attacking;
@@ -47,7 +46,7 @@ public class Monster {
         droppedLoot = false;
         this.id = id;
         this.kind = kind;
-        canvas = new Canvas(size, size);
+        canvas = new Canvas(radius*2, radius*2);
         canvas.setLayoutX(x);
         canvas.setLayoutY(y);
         gc = canvas.getGraphicsContext2D();
@@ -58,7 +57,7 @@ public class Monster {
                 damage = 10;
                 range = 50;
                 cooldown = 1000000000;
-                xp = 300;
+                xp = 10;
                 break;
             case 2:
                 spriteSheet = new Image(getClass().getResource("/EvilEye_Spritesheet.png").toExternalForm());
@@ -70,7 +69,7 @@ public class Monster {
                 range = 250;
                 cooldown = 1000000000;
                 AVOID_DISTANCE = 150;
-                xp = 100;
+                xp = 5;
                 break;
         }
     }
@@ -106,7 +105,7 @@ public class Monster {
                 int frameX = (currentFrame % numFrames) * frameSize;
                 int frameY = directionRow * frameSize;
 
-                gc.drawImage(spriteSheet, frameX, frameY, frameSize, frameSize, 0, 0, size, size);
+                gc.drawImage(spriteSheet, frameX, frameY, frameSize, frameSize, 0, 0, radius*2, radius*2);
                 currentFrame = (currentFrame + 1) % numFrames;
                 lastUpdate = 0;
             }
@@ -114,7 +113,7 @@ public class Monster {
             // Just draw first frame of current direction
             gc.clearRect(0, 0, frameSize, frameSize);
             int frameY = directionRow * frameSize;
-            gc.drawImage(spriteSheet, 0, frameY, frameSize, frameSize, 0, 0, size, size);
+            gc.drawImage(spriteSheet, 0, frameY, frameSize, frameSize, 0, 0, radius*2, radius*2);
         }
     }
 

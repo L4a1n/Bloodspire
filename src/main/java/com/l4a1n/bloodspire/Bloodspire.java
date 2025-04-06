@@ -11,7 +11,7 @@ public class Bloodspire extends Application {
         Level level = new Level(); // Hauptspiel-Logik
         Pane gamePane = level.getGamePane(); // Spielbereich
 
-        Scene scene = new Scene(gamePane, 1200, 1100); // Spielszene
+        Scene scene = new Scene(gamePane, 1280, 820); // Spielszene
         stage.setTitle("Bloodspire");
         stage.setScene(scene);
         stage.setResizable(false);

@@ -20,7 +20,7 @@ public class Spawnarea {
     private int currentFrame = 0;
     private double frameDuration = 12;
     private double lastUpdate = 0;
-    private double size = 100;
+    private double size = 60;
     private Random random;
     private long lastSpawnTime;
     private long spawnDelay = 1000000000L;

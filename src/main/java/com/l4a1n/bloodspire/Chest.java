@@ -16,7 +16,7 @@ public class Chest extends Group {
     private String item;
     private boolean used;
     private boolean accesible;
-    private double size = 50;
+    private double size = 20;
     private long timeSinceUsed;
     private Image opened;
     private Image closed;
