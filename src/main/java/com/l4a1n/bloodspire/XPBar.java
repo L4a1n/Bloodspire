@@ -26,7 +26,6 @@ public class XPBar {
 
     public void increaseXP(int xp){
         vg.setWidth(vg.getWidth() + xp);
-        System.out.println(vg.getWidth() >= bg.getWidth());
         if (vg.getWidth() >= bg.getWidth()){
             player.increaseLevel();
             vg.setWidth(0);

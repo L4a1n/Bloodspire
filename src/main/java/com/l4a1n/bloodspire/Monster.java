@@ -19,7 +19,7 @@ public class Monster {
     private int currentFrame = 0;
     private double frameDuration = 10;
     private double lastUpdate = 0;
-    private double SPEED = 80;                // Geschwindigkeit des Monsters
+    private double SPEED = 40;                // Geschwindigkeit des Monsters
     private double AVOID_DISTANCE = 40;        // Abstand der zu andern Entitäten eingehalten werden soll
     private int health;
     private boolean alive;
@@ -57,7 +57,7 @@ public class Monster {
                 damage = 10;
                 range = 50;
                 cooldown = 1000000000;
-                xp = 10;
+                xp = 15;
                 break;
             case 2:
                 spriteSheet = new Image(getClass().getResource("/EvilEye_Spritesheet.png").toExternalForm());
@@ -65,11 +65,11 @@ public class Monster {
                 health = 30;
                 damage = 30;
                 shape.setVisible(false);
-                SPEED = 40;
-                range = 250;
+                SPEED = 20;
+                range = 160;
                 cooldown = 1000000000;
                 AVOID_DISTANCE = 150;
-                xp = 5;
+                xp = 10;
                 break;
         }
     }

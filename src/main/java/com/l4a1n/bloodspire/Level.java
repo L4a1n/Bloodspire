@@ -23,6 +23,7 @@ public class Level {
     private AbilityBar abilityBar;
     private XPBar xpBar;
     private Animation IntroAnimation;
+    private Animation IntroAnimation2;
     private Animation GameOverAnimation;
     private List<Monster> monsters = new ArrayList<>();
     private List<Healthbar> healthbars;
@@ -36,7 +37,9 @@ public class Level {
     private boolean tutorialDone = false;
     private boolean mouseMoved = false;
     private boolean mouseFired = false;
+    private boolean abilityUsed = false;
     private double passedTime = 0;
+    private double passedTimeSinceGameover = 0;
 
     public Level() {
         gamePane = new Pane();
@@ -69,6 +72,10 @@ public class Level {
         Image spritesheet = new Image(getClass().getResource("/Mouse_Intro.png").toExternalForm());
         IntroAnimation = new Animation(spritesheet, 490, 250, 150, 150, 33, 32, 2, 4);
         gamePane.getChildren().add(IntroAnimation.getCanvas());
+        Image spritesheet2 = new Image(getClass().getResource("/Ability_Intro.png").toExternalForm());
+        IntroAnimation2 = new Animation(spritesheet2, 440, 250, 400, 100, 128, 32, 8, 2);
+        gamePane.getChildren().add(IntroAnimation2.getCanvas());
+
     }
 
     private void setupGameOver(){
@@ -135,19 +142,19 @@ public class Level {
     }
 
     private void setupSpawns(){
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 1; i++) {
             boolean again = false;
-            double x = random.nextDouble(1280) + 70;
+            double x = random.nextDouble(1190) + 70;
             double y = random.nextDouble(630) + 70;
             for (Wall wall : walls) {
-                if (x + 60 >= wall.getX() && x - 60 <= wall.getX() + wall.getW() && y + 60 >= wall.getY() && y - 60 <= wall.getY() + wall.getH()) {     // Checkt ob die Spawn-Koordinaten auf den Wänden liegen damit die Monster nicht auf den Wänden spawnen
+                if (x + 60 >= wall.getX() && x - 60 <= wall.getX() + wall.getW() && y + 60 >= wall.getY() && y - 60 <= wall.getY() + wall.getH()) {     // Checkt ob die Spawn-Koordinaten auf den Wänden liegen damit die Spawns nicht auf den Wänden spawnen
                     System.out.println("Oh oh");
                     i -= 1;     // Wenn ja, dann reduziert es den Iterations-Zähler um 1 und unterbricht den for-loop
                     again = true;
                     break;
                 }
             }
-            if (!again) {    // Wenn die Koordinaten in Ordnung sind dann werden Monster erstellt
+            if (!again) {    // Wenn die Koordinaten in Ordnung sind dann werden Spawns erstellt
                 spawnareas.add(new Spawnarea(x, y));
                 gamePane.getChildren().addAll(spawnareas.get(spawnareas.size()-1).getShape(), spawnareas.get(spawnareas.size()-1).getCanvas());
             }
@@ -164,10 +171,10 @@ public class Level {
     }
 
     private void setupMouseClick() {
-        // Wenn die Maus gezogen wird...
         gamePane.setOnMouseMoved((MouseEvent event) ->{
             currentMouseEvent = event;
         });
+        // Wenn die Maus gezogen wird...
         gamePane.setOnMouseDragged((MouseEvent event) -> {
             currentMouseEvent = event;
             // Wenn es die Linke Maustaste ist
@@ -179,7 +186,7 @@ public class Level {
             }
 
         });
-        // Wenn die Maus nur geclickt wird
+        // Wenn die Maus nur gedrückt wird
         gamePane.setOnMousePressed((MouseEvent event) -> {
             currentMouseEvent = event;
             // Wenn es die Linke Maustaste ist
@@ -229,6 +236,7 @@ public class Level {
                 if (!abilityBar.getLockedSlots(2)){
                     abilityBar.setActiveSlot(2);
                     player.setCurrentAbility(2);
+                    player.setDamage(100);
                 }
                 break;
             case DIGIT4:
@@ -282,6 +290,13 @@ public class Level {
                                 abilityBar.setSlotCooldown(1, 1000000000L);
                             }
                             break;
+                        case 2:
+                            if (abilityBar.getSlotCooldown(2) == 0L){
+                                Projectile projectile = new Projectile(player.getX(), player.getY(), mouseX, mouseY, 0, player.getCurrentAbility(), player.getDamage());
+                                abilityBar.setSlotCooldown(2, 1000000000L);
+                                projectiles.add(projectile);
+                                gamePane.getChildren().add(projectile.getSickle());
+                            }
                     }
                 }
 
@@ -303,10 +318,18 @@ public class Level {
                         gamePane.getChildren().remove(IntroAnimation.getCanvas());
                     }
                 }
+                if (!abilityBar.getLockedSlots(1) && !abilityUsed){
+                    IntroAnimation2.animate(dTime);
+                    if (player.getCurrentAbility() == 1){
+                        abilityUsed = true;
+                        gamePane.getChildren().remove(IntroAnimation2.getCanvas());
+                    }
+                }
 
-                if (tutorialDone){
+                if (tutorialDone && healthbars.get(0).getPercantage() >= 0){
+                    player.update(dTime, walls); // Spieler-Update
+                    healthbars.get(0).animate(dTime);   // Spieler-Healthbar IntroAnimation
                     if (passedTime >= 25){
-                        System.out.println("Now");
                         setupSpawns();
                         passedTime = 0;
                     }
@@ -335,6 +358,10 @@ public class Level {
                         }
                     }
                 }
+                if (healthbars.get(0).getPercantage() <= 0){
+                    GameOverAnimation.animate(dTime);
+                    passedTimeSinceGameover += dTime;
+                }
 
                 for (Projectile projectile : projectiles){
                     if (projectile.getAliveUntil() == 0){   // Wenn die Zeit 0 ist dann wird die aktuelle Zeit gesetzt
@@ -342,18 +369,13 @@ public class Level {
                         continue;
                     }
                     if (projectile.getAliveUntil() <= now){     // Wenn die Zeit zu leben überschritten ist dann wird es gelöscht
-                        gamePane.getChildren().remove(projectile.getShape());
+                        if (projectile.getKind() == 2) gamePane.getChildren().remove(projectile.getSickle());
+                        else gamePane.getChildren().remove(projectile.getShape());
                         projectiles.remove(projectile);
                         return;
                     }
                     projectile.update(dTime, walls);
                 }
-
-                if (player.getHealth() > 0){
-                    player.update(dTime, walls); // Spieler-Update
-                    healthbars.get(0).animate(dTime);   // Spieler-Healthbar IntroAnimation
-                }
-                else GameOverAnimation.animate(dTime);
 
                 for (Chest chest : chests){
                     //                   if ((player.getX() >= chest.getX() && player.getX() <= chest.getX()+ chest.getSize()) && (player.getY() >= chest.getY() && player.getY() <= chest.getY()+ chest.getSize()) && chest.getAccessible()){
@@ -402,7 +424,6 @@ public class Level {
                     Shape intersection = Shape.intersect(player.getShape(), projectile.getShape());
                     if (!intersection.getBoundsInLocal().isEmpty() && !projectile.getPlayerHit()){
                         player.decHealth(projectile.getDamgage());
-                        System.out.println(player.getHealth());
                         for (Healthbar hb : healthbars){
                             if (hb.getId() != 0) continue;
                             hb.decHealth(projectile.getDamgage());
@@ -441,7 +462,9 @@ public class Level {
                         }
                         for (Projectile projectile : projectiles){  // Überprüft die Kollision von Projektilen und Monstern
                             if (projectile.getSource() == 1) continue;
-                            Shape intersection = Shape.intersect(monster.getShape(), projectile.getShape());
+                            Shape projShape = projectile.getKind() == 2 ? projectile.getSickle() : projectile.getShape();
+                            if (projShape == null) continue; // extra safety
+                            Shape intersection = Shape.intersect(monster.getShape(), projShape);
                             if (!intersection.getBoundsInLocal().isEmpty() && !projectile.getTargets().contains(monster)) {
                                 monster.kill(player.getDamage(), now, player.getKnockback());  // Monster bekommt schaden
                                 projectile.setTarget(monster);  // getroffenes Monster wird einer Liste des Projektils hinzugefügt

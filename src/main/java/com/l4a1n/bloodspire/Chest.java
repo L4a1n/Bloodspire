@@ -65,7 +65,7 @@ public class Chest extends Group {
     }
 
     private String generateRandomItem() {
-        List<String> items = Arrays.asList("Salve", "HealthPotion", "HealthPotion");
+        List<String> items = Arrays.asList("Salve", "Wave", "HealthPotion", "HealthPotion", "HealthPotion");
         Random random = new Random();
         return items.get(random.nextInt(items.size()));
     }
