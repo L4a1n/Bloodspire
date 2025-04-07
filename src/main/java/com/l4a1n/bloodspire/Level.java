@@ -318,7 +318,7 @@ public class Level {
                         gamePane.getChildren().remove(IntroAnimation.getCanvas());
                     }
                 }
-                if (!abilityBar.getLockedSlots(1) && !abilityUsed){
+                if (!abilityBar.getLockedSlots(1) || !abilityBar.getLockedSlots(2) && !abilityUsed){
                     IntroAnimation2.animate(dTime);
                     if (player.getCurrentAbility() == 1){
                         abilityUsed = true;
