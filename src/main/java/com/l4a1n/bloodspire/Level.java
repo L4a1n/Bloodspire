@@ -330,7 +330,7 @@ public class Level {
                 }
                 if (!abilityBar.getLockedSlots(1) || !abilityBar.getLockedSlots(2) && !abilityUsed){
                     IntroAnimation2.animate(dTime);
-                    if (player.getCurrentAbility() == 1){
+                    if (player.getCurrentAbility() == 1 || player.getCurrentAbility() == 2){
                         abilityUsed = true;
                         gamePane.getChildren().remove(IntroAnimation2.getCanvas());
                     }

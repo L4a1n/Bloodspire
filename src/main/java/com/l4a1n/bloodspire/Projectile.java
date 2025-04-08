@@ -23,6 +23,7 @@ public class Projectile {
     private int kind;
     private double x, y;
     private int possibleCollisions;
+    private double timeAlive = 0;
 
     public Projectile(double x, double y, double targetX, double targetY, int source, int kind, int damgage){
         projectiles = new ArrayList<>();
@@ -53,7 +54,7 @@ public class Projectile {
                 this.x = x;
                 this.y = y;
 
-                possibleCollisions = 4;
+                possibleCollisions = 8;
                 radius = 20;
                 SPEED = 700;
                 double dx2 = targetX - x;
@@ -112,6 +113,12 @@ public class Projectile {
 
                 sickle.setLayoutX(x);
                 sickle.setLayoutY(y);
+
+                timeAlive += dTime;
+                double scale = 1.0 + timeAlive * 1.5;
+                sickle.setScaleX(scale);
+                sickle.setScaleY(scale);
+
             }
             else{
                 setAliveUntil(1);
