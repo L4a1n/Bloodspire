@@ -1,11 +1,13 @@
 package com.l4a1n.bloodspire;
 
 import javafx.animation.AnimationTimer;
+import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
 import javafx.scene.canvas.GraphicsContext;
@@ -25,6 +27,8 @@ public class Level {
     private Animation IntroAnimation;
     private Animation IntroAnimation2;
     private Animation GameOverAnimation;
+    private Rectangle GameOverBackground;
+    private double GameOverBackgroundVisibility;
     private List<Monster> monsters = new ArrayList<>();
     private List<Healthbar> healthbars;
     private List<Projectile> projectiles = new ArrayList<>();
@@ -64,8 +68,11 @@ public class Level {
         startGameLoop();
     }
 
-    public Pane getGamePane() {
-        return gamePane;
+    public Pane getGamePane() {return gamePane;}
+
+    private void setTopLevel(Node node){
+        gamePane.getChildren().remove(node);
+        gamePane.getChildren().add(node);
     }
 
     private void setupIntro(){
@@ -82,6 +89,10 @@ public class Level {
         Image GOspritesheet = new Image(getClass().getResource("/GameOver_Sprite.png").toExternalForm());
         GameOverAnimation = new Animation(GOspritesheet, 340, 250, 600, 300, 128, 64, 13, 4);
         gamePane.getChildren().add(GameOverAnimation.getCanvas());
+        GameOverBackground = new Rectangle(0, 0, 1280, 720);
+        GameOverBackground.setFill(Color.rgb(0, 0, 0, GameOverBackgroundVisibility));
+        GameOverBackground.setVisible(false);
+        gamePane.getChildren().add(GameOverBackground);
     }
 
     private void setupRoom() {
@@ -300,7 +311,6 @@ public class Level {
                     }
                 }
 
-
                 abilityBar.animate(dTime);
 
                 if (!mouseMoved && currentMouseEvent != null){
@@ -329,7 +339,7 @@ public class Level {
                 if (tutorialDone && healthbars.get(0).getPercantage() >= 0){
                     player.update(dTime, walls); // Spieler-Update
                     healthbars.get(0).animate(dTime);   // Spieler-Healthbar IntroAnimation
-                    if (passedTime >= 25){
+                    if (passedTime >= 30){
                         setupSpawns();
                         passedTime = 0;
                     }
@@ -359,8 +369,20 @@ public class Level {
                     }
                 }
                 if (healthbars.get(0).getPercantage() <= 0){
-                    GameOverAnimation.animate(dTime);
+                    GameOverBackground.setVisible(true);
                     passedTimeSinceGameover += dTime;
+                    if (GameOverBackgroundVisibility <= 0.7){
+                        if (passedTimeSinceGameover > 0.2){
+                            GameOverBackground.setFill(Color.rgb(0,0,0, GameOverBackgroundVisibility));
+                            GameOverBackgroundVisibility += 0.1;
+                            passedTimeSinceGameover = 0;
+                        }
+
+                    }
+                    else {
+                        GameOverAnimation.animate(dTime);
+                        passedTimeSinceGameover += dTime;
+                    }
                 }
 
                 for (Projectile projectile : projectiles){
@@ -503,6 +525,8 @@ public class Level {
                         }
                     }
                 }
+                setTopLevel(GameOverBackground);
+                setTopLevel(GameOverAnimation.getCanvas());
             }
         };
         gameLoop.start();
