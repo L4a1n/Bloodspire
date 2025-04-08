@@ -18,6 +18,8 @@ public class Player {
     private double distance;
     private int currentAbility;
     private int level = 1;
+    private double globalCooldown = 1;
+    private int baseDamage = 5;
 
     public Player(double x, double y) {
         shape = new Circle(radius, Color.BLUE);
@@ -40,9 +42,18 @@ public class Player {
     public int getCurrentAbility(){return currentAbility;}
     public void setCurrentAbility(int i){currentAbility = i;}
     public int getLevel(){return level;}
-    public void increaseLevel(){level++;}
+    public void increaseLevel(){
+        level++;
+        baseDamage += 5;
+        if (globalCooldown > 0.2){
+            globalCooldown -= 0.1;
+        }
+    }
+    public double getCooldown(){return globalCooldown;}
 
-    public void setDamage(int damage){this. damage = damage;}   // Legt den Schaden fest, den der Spieler verursacht
+    public void setDamage(int damage){this.damage = damage + baseDamage;
+        System.out.println(this.damage);
+    }   // Legt den Schaden fest, den der Spieler verursacht
 
     // Der Target setzer. Er macht was er sagt, er setzt das neue Ziel das der Spieler verfolgen soll.
     public void setTarget(double x, double y) {

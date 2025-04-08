@@ -70,7 +70,10 @@ public class Healthbar {
     public void decHealth(double damage){
         vg.setWidth(vg.getWidth()-(bg.getWidth()*(damage/(double)health)));         // Vermindert den Healthbar, um wie viel schaden angegeben wird
         percantage = (int)Math.round(vg.getWidth()/bg.getWidth()*100);      // Passt die neue Prozentzahl an
-        if (vg.getWidth() <= 0 && id != 0) bg.setFill(Color.TRANSPARENT);              // Sofern das gesamte Leben verloren wurde, wird der Healthbar unsichtbar gemacht
+
+        if (vg.getWidth() <= 0 && id != 0) {
+            bg.setFill(Color.TRANSPARENT);              // Sofern das gesamte Leben verloren wurde, wird der Healthbar unsichtbar gemacht
+        }
     }
     public void incHealth(double amount){
         if (vg.getWidth() < bg.getWidth()){

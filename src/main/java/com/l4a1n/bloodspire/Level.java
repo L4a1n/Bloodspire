@@ -233,21 +233,18 @@ public class Level {
                 if (!abilityBar.getLockedSlots(0)){
                     abilityBar.setActiveSlot(0);
                     player.setCurrentAbility(0);
-                    player.setDamage(20);
                 }
                 break;
             case DIGIT2:
                 if (!abilityBar.getLockedSlots(1)){
                     abilityBar.setActiveSlot(1);
                     player.setCurrentAbility(1);
-                    player.setDamage(50);
                 }
                 break;
             case DIGIT3:
                 if (!abilityBar.getLockedSlots(2)){
                     abilityBar.setActiveSlot(2);
                     player.setCurrentAbility(2);
-                    player.setDamage(100);
                 }
                 break;
             case DIGIT4:
@@ -289,22 +286,25 @@ public class Level {
                     switch (player.getCurrentAbility()){
                         case 0:
                             if (abilityBar.getSlotCooldown(0) == 0L){
+                                player.setDamage(10);
                                 Projectile projectile = new Projectile(player.getX(), player.getY(), mouseX, mouseY, 0, player.getCurrentAbility(), player.getDamage());
-                                abilityBar.setSlotCooldown(0, 200000000L);
+                                abilityBar.setSlotCooldown(0, (long) (200000000L * player.getCooldown()));
                                 projectiles.add(projectile);
                                 gamePane.getChildren().add(projectile.getShape());
                             }
                             break;
                         case 1:
                             if (abilityBar.getSlotCooldown(1) == 0L){
+                                player.setDamage(20);
                                 player.fireSalve(projectiles, getGamePane(), player.getX(), player.getY(), mouseX, mouseY);
-                                abilityBar.setSlotCooldown(1, 1000000000L);
+                                abilityBar.setSlotCooldown(1, (long) (1000000000L * player.getCooldown()));
                             }
                             break;
                         case 2:
                             if (abilityBar.getSlotCooldown(2) == 0L){
+                                player.setDamage(30);
                                 Projectile projectile = new Projectile(player.getX(), player.getY(), mouseX, mouseY, 0, player.getCurrentAbility(), player.getDamage());
-                                abilityBar.setSlotCooldown(2, 1000000000L);
+                                abilityBar.setSlotCooldown(2, (long) (1000000000L * player.getCooldown()));
                                 projectiles.add(projectile);
                                 gamePane.getChildren().add(projectile.getSickle());
                             }
@@ -510,17 +510,20 @@ public class Level {
                             }
                         }
                         if (monster.getDeadSince() <= now){
-                            gamePane.getChildren().remove(monster.getShape());
-                            gamePane.getChildren().remove(monster.getCanvas());
-                            monsters.remove(monster);
                             for (Healthbar hb : healthbars){
                                 if (monster.getId() == hb.getId()){
+                                    System.out.println(monster.getId() + "  " + hb.getId());
+                                    gamePane.getChildren().remove(hb.getVg());
+                                    gamePane.getChildren().remove(hb.getBg());
                                     healthbars.remove(hb);
-                                    gamePane.getChildren().remove(hb.getVg());
-                                    gamePane.getChildren().remove(hb.getVg());
+                                    System.out.println("Removed!!!!!");
                                     break;
                                 }
                             }
+                            gamePane.getChildren().remove(monster.getShape());
+                            gamePane.getChildren().remove(monster.getCanvas());
+                            monsters.remove(monster);
+
                             return;
                         }
                     }

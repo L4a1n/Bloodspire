@@ -62,7 +62,7 @@ public class Monster {
             case 2:
                 spriteSheet = new Image(getClass().getResource("/EvilEye_Spritesheet.png").toExternalForm());
 
-                health = 30;
+                health = 40;
                 damage = 30;
                 shape.setVisible(false);
                 SPEED = 20;
@@ -175,8 +175,10 @@ public class Monster {
 
     public void kill(int damage, long time, double knockback){
         health -= damage;
+        System.out.println(health);
         setReciveKnockback(knockback);
         if (health <= 0){
+            System.out.println("Yeah !!!");
             shape.setFill(Color.YELLOW);
             alive = false;
             deadSince = time + 1000000000L;
