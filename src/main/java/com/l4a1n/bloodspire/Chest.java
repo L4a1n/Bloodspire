@@ -22,10 +22,13 @@ public class Chest extends Group {
     private Image closed;
     private Canvas canvas;
     private GraphicsContext gc;
+    private Player player;
 
-    public Chest(double x, double y) {
+    public Chest(double x, double y, Player player) {
         shape = new Rectangle(size, size);
         shape.setFill(Color.TRANSPARENT);
+
+        this.player = player;
 
         canvas = new Canvas(size, size);
 

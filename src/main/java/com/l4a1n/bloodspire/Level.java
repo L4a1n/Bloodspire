@@ -175,7 +175,7 @@ public class Level {
     private void setupChest() {
         chests = new ArrayList<>();
 
-        chests.add(new Chest(random.nextInt(700) + 50, random.nextInt(700) + 50));
+        chests.add(new Chest(random.nextInt(700) + 50, random.nextInt(700) + 50, player));
         for (Chest chest : chests){
             gamePane.getChildren().add(chest);
         }
@@ -504,7 +504,7 @@ public class Level {
                         if (!monster.getDroppedLoot()){
                             monster.setDroppedLoot();
                             if (random.nextInt(10) == 1){
-                                Chest chest = new Chest(monster.getX(), monster.getY());
+                                Chest chest = new Chest(monster.getX(), monster.getY(), player);
                                 chests.add(chest);
                                 gamePane.getChildren().add(chest);
                             }
@@ -512,11 +512,9 @@ public class Level {
                         if (monster.getDeadSince() <= now){
                             for (Healthbar hb : healthbars){
                                 if (monster.getId() == hb.getId()){
-                                    System.out.println(monster.getId() + "  " + hb.getId());
                                     gamePane.getChildren().remove(hb.getVg());
                                     gamePane.getChildren().remove(hb.getBg());
                                     healthbars.remove(hb);
-                                    System.out.println("Removed!!!!!");
                                     break;
                                 }
                             }
