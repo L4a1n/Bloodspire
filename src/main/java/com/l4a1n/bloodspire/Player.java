@@ -12,8 +12,9 @@ public class Player {
     private double targetX;
     private double targetY;
     private int SPEED = 150;
-    private int health = 1000;
-    private int maxHealth = 1000;
+    private int baseHealth = 100;
+    private int health = baseHealth;
+    private int maxHealth = health;
     private int radius = 10;
     private int damage = 25;
     private double knockback = -2;
@@ -30,6 +31,15 @@ public class Player {
         targetX = x;
         targetY = y;
         currentAbility = 0;
+    }
+
+    public void reset(){
+        level = 1;
+        health = baseHealth;
+        baseDamage = 5;
+        currentAbility = 0;
+        globalCooldown = 1.0;
+        healthbar.setNewHealth(baseHealth);
     }
 
     // The "David" Getters

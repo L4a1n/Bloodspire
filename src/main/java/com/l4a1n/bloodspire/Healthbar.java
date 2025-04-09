@@ -43,8 +43,15 @@ public class Healthbar {
     public int getPercantage(){return percantage;}                  // return die Prozentanzahl des übrigen Lebens
     public void setNewHealth(int health){this.health = health; maxHealth = health;}     // Wenn das maximale Leben des Spielers sich verändert muss es auch hier verändert werden
 
+    public void reset(Player player){
+        health = player.getHealth();
+        vg.setWidth(bg.getWidth());
+        percantage = (int)Math.round(vg.getWidth()/bg.getWidth()*100);
+    }
+
     // Animation für niedriges Leben
     public void animate(double dTime){
+        System.out.println(percantage);
         if (percantage <= 40){              // Wenn die Prozentzahl unter oder gleich 40 ist, dann wird die Animation ausgeführt
             if (animCount < 120){           // Zählt einen Animationscounter hoch und erhöht ebenfalls die Farben
                 animCount ++;

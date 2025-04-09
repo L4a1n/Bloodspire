@@ -3,6 +3,7 @@ package com.l4a1n.bloodspire;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
@@ -20,7 +21,7 @@ import java.util.List;
 import java.util.Random;
 
 public class Level {
-    private Bloodspire app;
+    private MainMenu menu;
     private AnimationTimer gameLoop;
     private Pane gamePane;
     private List<Wall> walls;
@@ -56,19 +57,16 @@ public class Level {
 
         healthbars = new ArrayList<>();
 
-        setupRoom();
-        setupWalls();
-        setupSpawns();
-        setupChest();
-        setupPlayer();
-        setupMouseClick();
-        setupKeyDown();
-        setupIntro();
-        setupGameOver();
+
+        menu = new MainMenu();
+        menu.setLevel(this);
+        menu.setGamePane(gamePane);
+
+
+        menu.run();
 
         gamePane.requestFocus();
 
-        startGameLoop();
     }
 
     public Pane getGamePane() {return gamePane;}
@@ -78,7 +76,7 @@ public class Level {
         gamePane.getChildren().add(node);
     }
 
-    private void setupIntro(){
+    public void setupIntro(){
         Image spritesheet = new Image(getClass().getResource("/Mouse_Intro.png").toExternalForm());
         IntroAnimation = new Animation(spritesheet, 490, 250, 150, 150, 33, 32, 2, 4);
         gamePane.getChildren().add(IntroAnimation.getCanvas());
@@ -88,7 +86,7 @@ public class Level {
 
     }
 
-    private void setupGameOver(){
+    public void setupGameOver(){
         Image GOspritesheet = new Image(getClass().getResource("/GameOver_Sprite.png").toExternalForm());
         GameOverAnimation = new Animation(GOspritesheet, 340, 250, 600, 300, 128, 64, 13, 4);
         gamePane.getChildren().add(GameOverAnimation.getCanvas());
@@ -98,7 +96,7 @@ public class Level {
         gamePane.getChildren().add(GameOverBackground);
     }
 
-    private void setupRoom() {
+    public void setupRoom() {
         GraphicsContext gc;
         Canvas canvas = new Canvas(1280, 720);
         Image floor = new Image(getClass().getResource("/Floor.png").toExternalForm());
@@ -109,7 +107,7 @@ public class Level {
         gamePane.getChildren().add(canvas);
     }
 
-    private void setupWalls(){
+    public void setupWalls(){
         walls = new ArrayList<>();
 
         walls.add(new Wall(325, 307, 21, 58));
@@ -125,7 +123,7 @@ public class Level {
 
     }
 
-    private void setupPlayer() {
+    public void setupPlayer() {
         player = new Player(400, 400);
         gamePane.getChildren().add(player.getShape());
         Healthbar healthbar = new Healthbar(50, 740, player.getHealth(), 0);
@@ -156,7 +154,7 @@ public class Level {
         gamePane.getChildren().addAll(xpBar.getBg(), xpBar.getVg());
     }
 
-    private void setupSpawns(){
+    public void setupSpawns(){
         for (int i = 0; i < 1; i++) {
             boolean again = false;
             double x = random.nextDouble(1190) + 70;
@@ -176,7 +174,7 @@ public class Level {
         }
     }
 
-    private void setupChest() {
+    public void setupChest() {
         chests = new ArrayList<>();
 
         chests.add(new Chest(random.nextInt(700) + 50, random.nextInt(700) + 50, player));
@@ -185,7 +183,7 @@ public class Level {
         }
     }
 
-    private void setupMouseClick() {
+    public void setupMouseClick() {
         gamePane.setOnMouseMoved((MouseEvent event) ->{
             currentMouseEvent = event;
         });
@@ -223,15 +221,25 @@ public class Level {
         // Wenn der Spieler auf das Monster klickt wird es angegriffen
     }
 
-    private void setupKeyDown() {
-        gamePane.sceneProperty().addListener((observable, oldScene, newScene) -> {
-            if (newScene != null) { // Sicherstellen, dass die Scene existiert
-                newScene.setOnKeyPressed(this::handleKeyPress);
-            }
-        });
+    public void setupKeyDown() {
+        Scene scene = gamePane.getScene();
+        if (scene != null) {
+            scene.setOnKeyPressed(this::handleKeyPress);
+            gamePane.setFocusTraversable(true); // Make it focusable
+            gamePane.requestFocus();           // Request focus for key input
+        } else {
+            // If the scene isn't ready yet, listen for it
+            gamePane.sceneProperty().addListener((obs, oldScene, newScene) -> {
+                if (newScene != null) {
+                    newScene.setOnKeyPressed(this::handleKeyPress);
+                    gamePane.setFocusTraversable(true);
+                    gamePane.requestFocus();
+                }
+            });
+        }
     }
 
-    private void handleKeyPress(KeyEvent event){
+    public void handleKeyPress(KeyEvent event){
         switch (event.getCode()) {
             case DIGIT1:
                 if (!abilityBar.getLockedSlots(0)){
@@ -267,6 +275,9 @@ public class Level {
         chests.clear();
         projectiles.clear();
         spawnareas.clear();
+        player.reset();
+        healthbars.get(0).reset(player);
+        healthbars.clear();
 
         gamePane.getChildren().clear();
 
@@ -278,6 +289,7 @@ public class Level {
         abilityUsed = false;
         passedTime = 0;
     }
+
 
     public void startGameLoop() {
         gameLoop = new AnimationTimer() {
@@ -387,6 +399,7 @@ public class Level {
                         }
                     }
                 }
+                System.out.println(healthbars.get(0).getPercantage() + " !!!!");
                 if (healthbars.get(0).getPercantage() <= 0){
                     GameOverBackground.setVisible(true);
                     passedTimeSinceGameover += dTime;
@@ -403,7 +416,8 @@ public class Level {
                         passedTimeSinceGameover += dTime;
                         if (passedTimeSinceGameover > 7.5){
                             gameLoop.stop();
-                            Platform.exit();
+                            resetLevel();
+                            Platform.runLater(()-> menu.run());
                         }
                     }
                 }
