@@ -23,6 +23,7 @@ public class Chest extends Group {
     private Canvas canvas;
     private GraphicsContext gc;
     private Player player;
+    private Random random;
 
     public Chest(double x, double y, Player player) {
         shape = new Rectangle(size, size);
@@ -46,7 +47,7 @@ public class Chest extends Group {
         used = false;
         accesible = true;
 
-        item = generateRandomItem();
+        generateRandomItem();
 
         this.getChildren().addAll(canvas, shape);
     }
@@ -67,9 +68,10 @@ public class Chest extends Group {
         return item;
     }
 
-    private String generateRandomItem() {
+    private void generateRandomItem() {
         List<String> items = Arrays.asList("Salve", "Wave", "HealthPotion", "HealthPotion", "HealthPotion");
-        Random random = new Random();
-        return items.get(random.nextInt(items.size()));
+        random = new Random();
+        item = items.get(random.nextInt(items.size()));
+
     }
 }

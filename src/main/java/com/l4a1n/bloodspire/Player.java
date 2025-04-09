@@ -8,10 +8,12 @@ import java.util.List;
 
 public class Player {
     private Circle shape;
+    private Healthbar healthbar;
     private double targetX;
     private double targetY;
     private int SPEED = 150;
     private int health = 1000;
+    private int maxHealth = 1000;
     private int radius = 10;
     private int damage = 25;
     private double knockback = -2;
@@ -44,6 +46,8 @@ public class Player {
     public int getLevel(){return level;}
     public void increaseLevel(){
         level++;
+        healthbar.incHealth(maxHealth); // Volles Leben
+        health = maxHealth;
         baseDamage += 5;
         if (globalCooldown > 0.2){
             globalCooldown -= 0.1;
@@ -51,8 +55,9 @@ public class Player {
     }
     public double getCooldown(){return globalCooldown;}
 
+    public void setHealthbar(Healthbar healthbar){this.healthbar = healthbar;}
+
     public void setDamage(int damage){this.damage = damage + baseDamage;
-        System.out.println(this.damage);
     }   // Legt den Schaden fest, den der Spieler verursacht
 
     // Der Target setzer. Er macht was er sagt, er setzt das neue Ziel das der Spieler verfolgen soll.

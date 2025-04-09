@@ -1,6 +1,7 @@
 package com.l4a1n.bloodspire;
 
 import javafx.animation.AnimationTimer;
+import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.KeyEvent;
@@ -19,6 +20,8 @@ import java.util.List;
 import java.util.Random;
 
 public class Level {
+    private Bloodspire app;
+    private AnimationTimer gameLoop;
     private Pane gamePane;
     private List<Wall> walls;
     private Player player;
@@ -126,6 +129,7 @@ public class Level {
         player = new Player(400, 400);
         gamePane.getChildren().add(player.getShape());
         Healthbar healthbar = new Healthbar(50, 740, player.getHealth(), 0);
+        player.setHealthbar(healthbar);
         healthbars.add(healthbar);
         gamePane.getChildren().add(healthbar.getBg());
         gamePane.getChildren().add(healthbar.getVg());
@@ -257,15 +261,30 @@ public class Level {
         }
     }
 
-    private void startGameLoop() {
-        AnimationTimer gameLoop = new AnimationTimer() {
+    public void resetLevel(){
+        System.out.println("Resetting Level");
+        monsters.clear();
+        chests.clear();
+        projectiles.clear();
+        spawnareas.clear();
+
+        gamePane.getChildren().clear();
+
+        GameOverBackgroundVisibility = 0;
+        passedTimeSinceGameover = 0;
+        tutorialDone = false;
+        mouseMoved = false;
+        mouseFired = false;
+        abilityUsed = false;
+        passedTime = 0;
+    }
+
+    public void startGameLoop() {
+        gameLoop = new AnimationTimer() {
             private long lastUpdate = 0;
 
             @Override
             public void handle(long now) {
-                //if (monsters.isEmpty()){
-                //    setupMonsters();
-                //}
                 if (lastUpdate == 0){
                     lastUpdate = now;
                     return;
@@ -382,6 +401,10 @@ public class Level {
                     else {
                         GameOverAnimation.animate(dTime);
                         passedTimeSinceGameover += dTime;
+                        if (passedTimeSinceGameover > 7.5){
+                            gameLoop.stop();
+                            Platform.exit();
+                        }
                     }
                 }
 

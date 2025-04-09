@@ -175,10 +175,8 @@ public class Monster {
 
     public void kill(int damage, long time, double knockback){
         health -= damage;
-        System.out.println(health);
         setReciveKnockback(knockback);
         if (health <= 0){
-            System.out.println("Yeah !!!");
             shape.setFill(Color.YELLOW);
             alive = false;
             deadSince = time + 1000000000L;
