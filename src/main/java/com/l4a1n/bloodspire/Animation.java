@@ -17,6 +17,7 @@ public class Animation {
     private int row = 0;
     private Canvas canvas;
     private GraphicsContext gc;
+    private boolean paused;
 
     public Animation(Image spritesheet, double x, double y, double width, double heigth, int frameW, int frameH, int numFrames, double frameDuration){
         this.spritesheet = spritesheet;
@@ -26,6 +27,8 @@ public class Animation {
         this.frameDuration = frameDuration;
         this.width = width;
         this.heigth = heigth;
+
+        paused = false;
 
         canvas = new Canvas(width, heigth);
         canvas.setLayoutX(x);
@@ -40,18 +43,23 @@ public class Animation {
         this.row = row;
     }
 
+    public int getCurrentFrame(){return currentFrame;}
+
+    public void pause(){paused = true;}
+    public void play(){paused = false;}
+
     public void animate(double dTime){
-        lastUpdate += dTime;
-        if (lastUpdate >= 1.0 / frameDuration){
-            gc.clearRect(0, 0, width, heigth);
-            int frameX = (currentFrame % numFrames) * frameW;
-            int frameY = row * frameH;
+        if (!paused){
+            lastUpdate += dTime;
+            if (lastUpdate >= 1.0 / frameDuration){
+                gc.clearRect(0, 0, width, heigth);
+                int frameX = (currentFrame % numFrames) * frameW;
+                int frameY = row * frameH;
 
-            gc.drawImage(spritesheet, frameX, frameY, frameW, frameH, 0, 0, width, heigth);
-            currentFrame = (currentFrame + 1) %numFrames;
-            lastUpdate = 0;
-
+                gc.drawImage(spritesheet, frameX, frameY, frameW, frameH, 0, 0, width, heigth);
+                currentFrame = (currentFrame + 1) %numFrames;
+                lastUpdate = 0;
+            }
         }
     }
-
 }

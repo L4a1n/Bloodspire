@@ -8,15 +8,19 @@ public class XPBar {
     private Rectangle vg;
     private Player player;
 
-    private double width = 1260;
-    private double height = 15;
+    private double width = 1220;
+    private double height = 12;
 
     public XPBar(Player player){
-        bg = new Rectangle(10, 720, width, height);
-        vg = new Rectangle(10, 720, 0, height);
+        bg = new Rectangle(30, 725, width, height);
+        vg = new Rectangle(30, 725, 0, height);
 
         bg.setFill(Color.rgb(51, 0, 25));
         vg.setFill(Color.rgb(204, 0, 102));
+        bg.setArcWidth(12);
+        bg.setArcHeight(12);
+        vg.setArcWidth(12);
+        vg.setArcHeight(12);
 
         this.player = player;
     }

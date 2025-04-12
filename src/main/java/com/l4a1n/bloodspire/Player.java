@@ -12,7 +12,7 @@ public class Player {
     private double targetX;
     private double targetY;
     private int SPEED = 150;
-    private int baseHealth = 100;
+    private int baseHealth = 1000;
     private int health = baseHealth;
     private int maxHealth = health;
     private int radius = 10;

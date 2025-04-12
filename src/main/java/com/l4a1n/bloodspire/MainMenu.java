@@ -14,6 +14,8 @@ public class MainMenu extends Group {
     private Button playButton;
     private Button quitButton;
     private Image icons;
+    private Image titel;
+    private Animation titelAnimation;
     private Level level;
     private Pane gamePane;
     private AnimationTimer menuLoop;
@@ -24,13 +26,15 @@ public class MainMenu extends Group {
         background = new Rectangle(0, 0, 1280, 820);
         background.setFill(Color.BLACK);
 
-        playButton = new Button(icons, 540, 460, 200, 100, 64, 32, 0);
-        quitButton = new Button(icons, 540, 610, 200, 100, 64, 32, 96);
+        titel = new Image(getClass().getResource("/Title_Sprite.png").toExternalForm());
+        titelAnimation = new Animation(titel, 140, 200, 1000, 175.5, 103, 18, 15, 5);
 
-        playButton.setOnClick(this::startLevel);
-        quitButton.setOnClick(()-> Platform.exit());
 
-        this.getChildren().addAll(background, playButton.getCanvas(), quitButton.getCanvas());
+        playButton = new Button(icons, 400, 610, 192, 96, 64, 32, 0);
+        quitButton = new Button(icons, 680, 610, 192, 96, 64, 32, 96);
+
+
+        this.getChildren().addAll(background, titelAnimation.getCanvas(), playButton.getCanvas(), quitButton.getCanvas());
     }
 
     public void setLevel(Level level){this.level = level;}
@@ -40,6 +44,7 @@ public class MainMenu extends Group {
     public void startLevel(){
         menuLoop.stop();
         gamePane.getChildren().remove(this);
+
 
         Platform.runLater(() -> gamePane.requestFocus());
 
@@ -52,14 +57,17 @@ public class MainMenu extends Group {
         level.setupKeyDown();
         level.setupIntro();
         level.setupGameOver();
+        level.setupLevelUp();
 
-        level.startGameLoop();
+        Platform.runLater(() -> level.startGameLoop());     // Funktioniert nicht wie es soll, könnte aber...
     }
 
 
     public void run(){
         gamePane.getChildren().add(this);
         gamePane.requestFocus();
+        playButton.setAvailable();
+        quitButton.setAvailable();
 
         menuLoop = new AnimationTimer() {
             private long lastUpdate = 0;
@@ -74,10 +82,18 @@ public class MainMenu extends Group {
                 double dTime = (now - lastUpdate) / 1_000_000_000.0;
                 lastUpdate = now;
 
-                playButton.update();
-                quitButton.update();
+                if (titelAnimation.getCurrentFrame() != 14){
+                    titelAnimation.animate(dTime);
+                }
+                else {
+                    playButton.setOnClick(() -> startLevel());
+                    quitButton.setOnClick(Platform::exit);
+                    playButton.update();
+                    quitButton.update();
+                }
 
             }
+
         };
         menuLoop.start();
     }

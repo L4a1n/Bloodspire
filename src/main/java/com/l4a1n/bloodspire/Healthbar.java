@@ -51,7 +51,6 @@ public class Healthbar {
 
     // Animation für niedriges Leben
     public void animate(double dTime){
-        System.out.println(percantage);
         if (percantage <= 40){              // Wenn die Prozentzahl unter oder gleich 40 ist, dann wird die Animation ausgeführt
             if (animCount < 120){           // Zählt einen Animationscounter hoch und erhöht ebenfalls die Farben
                 animCount ++;

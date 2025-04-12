@@ -22,7 +22,7 @@ public class AbilityBar {
     private List<Boolean> slotsLocked;
     private ColorAdjust greyscaleEffect;
     private int activeSlot = 0;
-    private double w = 70, h = 70;
+    private double w = 60, h = 60;
 
     public AbilityBar(double x, double y){
         slots = new ArrayList<>();
@@ -53,7 +53,7 @@ public class AbilityBar {
             overlays.add(overlay);
 
             Rectangle cooldownOverlay = new Rectangle(x, y+h, w, 0);
-            cooldownOverlay.setFill(Color.rgb(102, 0, 51, 0.7));
+            cooldownOverlay.setFill(Color.rgb(192, 192, 192, 0.4));
             cooldownOverlay.setVisible(false);
             cooldownOverlays.add(cooldownOverlay);
 

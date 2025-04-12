@@ -11,7 +11,7 @@ public class Button {
     private Image sprite;
     private double x, y, w, h;
     private int frameW, frameH, baseFrameY;
-    private int currentState = 0; // 0 = normal, 1 = hover, 2 = pressed
+    private int currentState = 0; // 0 = normal, 1 = hover, 2 = pressed, 3 = unavailable
 
     private Runnable onClick;
 
@@ -35,28 +35,25 @@ public class Button {
         setupMouseEvents();
     }
 
-    public Canvas getCanvas() {
-        return canvas;
-    }
+    public Canvas getCanvas() {return canvas;}
 
-    public void setOnClick(Runnable onClick) {
-        this.onClick = onClick;
-    }
+    public void setOnClick(Runnable onClick) {this.onClick = onClick;}
+
+    public void setUnavailable(){currentState = 3;}
+
+    public void setAvailable(){currentState = 0;}
 
     private void setupMouseEvents() {
         canvas.setOnMouseEntered(e -> {
-            currentState = 1; // Hover
-            update();
+            if (currentState != 3) currentState = 1; // Hover
         });
 
         canvas.setOnMouseExited(e -> {
-            currentState = 0; // Normal
-            update();
+            if (currentState != 3)currentState = 0; // Normal
         });
 
         canvas.setOnMousePressed(e -> {
-            currentState = 2; // Pressed
-            update();
+            if (currentState != 3)currentState = 2; // Pressed
         });
 
         canvas.setOnMouseReleased(e -> {
@@ -64,18 +61,11 @@ public class Button {
                 onClick.run(); // Call action
             }
             currentState = 1; // Back to hover
-            update();
         });
     }
 
     public void update() {
         gc.clearRect(0, 0, w, h);
-        gc.drawImage(
-                sprite,
-                0, baseFrameY + (currentState * frameH),
-                frameW, frameH,
-                0, 0,
-                w, h
-        );
+        gc.drawImage(sprite, 0, baseFrameY + (currentState * frameH), frameW, frameH, 0, 0, w, h);
     }
 }

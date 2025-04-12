@@ -6,11 +6,10 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 public class Bloodspire extends Application {
-    private Level level;
 
     @Override
     public void start(Stage stage) {
-        level = new Level(); // Hauptspiel-Logik
+        Level level = new Level(); // Hauptspiel-Logik
         Pane gamePane = level.getGamePane(); // Spielbereich
 
         Scene scene = new Scene(gamePane, 1280, 820); // Spielszene

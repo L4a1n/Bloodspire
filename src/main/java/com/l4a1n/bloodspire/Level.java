@@ -70,6 +70,7 @@ public class Level {
     }
 
     public Pane getGamePane() {return gamePane;}
+    public AnimationTimer getGameLoop(){return gameLoop;}
 
     private void setTopLevel(Node node){
         gamePane.getChildren().remove(node);
@@ -124,14 +125,26 @@ public class Level {
     }
 
     public void setupPlayer() {
+        Image abilityBackground = new Image(getClass().getResource("/AbilityBar_Background.png").toExternalForm());
+        Canvas canvas = new Canvas(1280, 100);
+        canvas.setLayoutX(0);
+        canvas.setLayoutY(720);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.setImageSmoothing(false);
+        gc.clearRect(0,0,1280, 100);
+        gc.drawImage(abilityBackground, 0, 0, 409, 32, 0, 0, 1280, 100);
+        gamePane.getChildren().add(canvas);
+
         player = new Player(400, 400);
         gamePane.getChildren().add(player.getShape());
+
         Healthbar healthbar = new Healthbar(50, 740, player.getHealth(), 0);
         player.setHealthbar(healthbar);
         healthbars.add(healthbar);
         gamePane.getChildren().add(healthbar.getBg());
         gamePane.getChildren().add(healthbar.getVg());
-        abilityBar = new AbilityBar(400, 740);
+
+        abilityBar = new AbilityBar(400, 745);
         for (Rectangle slot : abilityBar.getSlots()){
             gamePane.getChildren().add(slot);
         }
@@ -266,6 +279,11 @@ public class Level {
                 }
                 break;
             case SPACE:
+                gameLoop.stop();
+                break;
+            case ENTER:
+                gameLoop.start();
+                break;
         }
     }
 
@@ -290,6 +308,11 @@ public class Level {
         passedTime = 0;
     }
 
+    public void setupLevelUp(){
+        LevelUp levelUp = new LevelUp();
+        levelUp.setLevel(this);
+        gamePane.getChildren().add(levelUp);
+    }
 
     public void startGameLoop() {
         gameLoop = new AnimationTimer() {
@@ -399,7 +422,6 @@ public class Level {
                         }
                     }
                 }
-                System.out.println(healthbars.get(0).getPercantage() + " !!!!");
                 if (healthbars.get(0).getPercantage() <= 0){
                     GameOverBackground.setVisible(true);
                     passedTimeSinceGameover += dTime;
@@ -412,9 +434,11 @@ public class Level {
 
                     }
                     else {
-                        GameOverAnimation.animate(dTime);
+                        if (GameOverAnimation.getCurrentFrame() != 12){
+                            GameOverAnimation.animate(dTime);
+                        }
                         passedTimeSinceGameover += dTime;
-                        if (passedTimeSinceGameover > 7.5){
+                        if (passedTimeSinceGameover > 10){
                             gameLoop.stop();
                             resetLevel();
                             Platform.runLater(()-> menu.run());
@@ -563,6 +587,7 @@ public class Level {
                         }
                     }
                 }
+                setTopLevel(player.getShape());
                 setTopLevel(GameOverBackground);
                 setTopLevel(GameOverAnimation.getCanvas());
             }
