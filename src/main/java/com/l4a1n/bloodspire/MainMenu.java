@@ -31,7 +31,7 @@ public class MainMenu extends Group {
 
 
         playButton = new Button(icons, 400, 610, 192, 96, 64, 32, 0);
-        quitButton = new Button(icons, 680, 610, 192, 96, 64, 32, 96);
+        quitButton = new Button(icons, 680, 610, 192, 96, 64, 32, 128);
 
 
         this.getChildren().addAll(background, titelAnimation.getCanvas(), playButton.getCanvas(), quitButton.getCanvas());
@@ -57,7 +57,6 @@ public class MainMenu extends Group {
         level.setupKeyDown();
         level.setupIntro();
         level.setupGameOver();
-        level.setupLevelUp();
 
         Platform.runLater(() -> level.startGameLoop());     // Funktioniert nicht wie es soll, könnte aber...
     }

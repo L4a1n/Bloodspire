@@ -23,6 +23,7 @@ import java.util.Random;
 public class Level {
     private MainMenu menu;
     private AnimationTimer gameLoop;
+    private LevelUp levelUp;
     private Pane gamePane;
     private List<Wall> walls;
     private Player player;
@@ -48,6 +49,9 @@ public class Level {
     private boolean abilityUsed = false;
     private double passedTime = 0;
     private double passedTimeSinceGameover = 0;
+    private boolean paused = false;
+    private long lastUpdate = 0;
+    private int playerLevel;
 
     public Level() {
         gamePane = new Pane();
@@ -62,6 +66,10 @@ public class Level {
         menu.setLevel(this);
         menu.setGamePane(gamePane);
 
+        levelUp = new LevelUp();
+        levelUp.setLevel(this);
+        levelUp.setGamePane(gamePane);
+        levelUp.setPlayer(player);
 
         menu.run();
 
@@ -76,6 +84,7 @@ public class Level {
         gamePane.getChildren().remove(node);
         gamePane.getChildren().add(node);
     }
+    public void setPaused(boolean paused){this.paused = paused;}
 
     public void setupIntro(){
         Image spritesheet = new Image(getClass().getResource("/Mouse_Intro.png").toExternalForm());
@@ -170,7 +179,7 @@ public class Level {
     public void setupSpawns(){
         for (int i = 0; i < 1; i++) {
             boolean again = false;
-            double x = random.nextDouble(1190) + 70;
+            double x = random.nextDouble(1180) + 70;
             double y = random.nextDouble(630) + 70;
             for (Wall wall : walls) {
                 if (x + 60 >= wall.getX() && x - 60 <= wall.getX() + wall.getW() && y + 60 >= wall.getY() && y - 60 <= wall.getY() + wall.getH()) {     // Checkt ob die Spawn-Koordinaten auf den Wänden liegen damit die Spawns nicht auf den Wänden spawnen
@@ -278,12 +287,6 @@ public class Level {
                     player.setCurrentAbility(3);
                 }
                 break;
-            case SPACE:
-                gameLoop.stop();
-                break;
-            case ENTER:
-                gameLoop.start();
-                break;
         }
     }
 
@@ -305,22 +308,21 @@ public class Level {
         mouseMoved = false;
         mouseFired = false;
         abilityUsed = false;
+        paused = false;
         passedTime = 0;
     }
 
-    public void setupLevelUp(){
-        LevelUp levelUp = new LevelUp();
-        levelUp.setLevel(this);
-        gamePane.getChildren().add(levelUp);
+    public void showLevelUp(){
+        levelUp.run();
     }
 
     public void startGameLoop() {
+        playerLevel = player.getLevel();
         gameLoop = new AnimationTimer() {
-            private long lastUpdate = 0;
 
             @Override
             public void handle(long now) {
-                if (lastUpdate == 0){
+                if (lastUpdate == 0 || paused){
                     lastUpdate = now;
                     return;
                 }
@@ -331,16 +333,18 @@ public class Level {
                 lastUpdate = now;
                 passedTime += dTime;
 
+                levelUp.setPlayer(player);
+
                 if (currentMouseEvent != null) {
                     mouseX = currentMouseEvent.getX();
                     mouseY = currentMouseEvent.getY();
                 }
 
+
                 if (rightMouseDown && player.getHealth() > 0){
                     switch (player.getCurrentAbility()){
                         case 0:
                             if (abilityBar.getSlotCooldown(0) == 0L){
-                                player.setDamage(10);
                                 Projectile projectile = new Projectile(player.getX(), player.getY(), mouseX, mouseY, 0, player.getCurrentAbility(), player.getDamage());
                                 abilityBar.setSlotCooldown(0, (long) (200000000L * player.getCooldown()));
                                 projectiles.add(projectile);
@@ -349,14 +353,12 @@ public class Level {
                             break;
                         case 1:
                             if (abilityBar.getSlotCooldown(1) == 0L){
-                                player.setDamage(20);
                                 player.fireSalve(projectiles, getGamePane(), player.getX(), player.getY(), mouseX, mouseY);
                                 abilityBar.setSlotCooldown(1, (long) (1000000000L * player.getCooldown()));
                             }
                             break;
                         case 2:
                             if (abilityBar.getSlotCooldown(2) == 0L){
-                                player.setDamage(30);
                                 Projectile projectile = new Projectile(player.getX(), player.getY(), mouseX, mouseY, 0, player.getCurrentAbility(), player.getDamage());
                                 abilityBar.setSlotCooldown(2, (long) (1000000000L * player.getCooldown()));
                                 projectiles.add(projectile);
@@ -590,6 +592,11 @@ public class Level {
                 setTopLevel(player.getShape());
                 setTopLevel(GameOverBackground);
                 setTopLevel(GameOverAnimation.getCanvas());
+
+                if (player.getLevel() > playerLevel){
+                    playerLevel = player.getLevel();
+                    levelUp.run();
+                }
             }
         };
         gameLoop.start();

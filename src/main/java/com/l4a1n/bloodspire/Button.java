@@ -60,7 +60,7 @@ public class Button {
             if (currentState == 2 && onClick != null) {
                 onClick.run(); // Call action
             }
-            currentState = 1; // Back to hover
+            if (currentState != 3) currentState = 1; // Back to hover
         });
     }
 

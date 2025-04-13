@@ -16,13 +16,13 @@ public class Player {
     private int health = baseHealth;
     private int maxHealth = health;
     private int radius = 10;
-    private int damage = 25;
+    private int baseDamage = 10;
+    private int damage = 0;
     private double knockback = -2;
     private double distance;
     private int currentAbility;
     private int level = 1;
     private double globalCooldown = 1;
-    private int baseDamage = 5;
 
     public Player(double x, double y) {
         shape = new Circle(radius, Color.BLUE);
@@ -36,7 +36,7 @@ public class Player {
     public void reset(){
         level = 1;
         health = baseHealth;
-        baseDamage = 5;
+        baseDamage = 10;
         currentAbility = 0;
         globalCooldown = 1.0;
         healthbar.setNewHealth(baseHealth);
@@ -47,22 +47,20 @@ public class Player {
     public double getX() {return shape.getCenterX();}           // return X Koordinate proportional von der Mitte der Figur.
     public double getY() {return shape.getCenterY();}           // return Y Koordinate proportional von der Mitte der Figur.
     public int getHealth(){return health;}                      // return aktuelles Leben des Spielers
-    public int getDamage(){return damage;}                      // return Schaden den der Spieler macht
+    public int getDamage(){return damage + baseDamage;}                      // return Schaden den der Spieler macht
     public void decHealth(int damage){health -= damage;}        // verringert das Leben des Spielers um angegebenen Schaden
     public double getKnockback(){return knockback;}             // return Rückstoß den der Spieler mit Attacken verursacht
     public void heal(int amount){health += amount;}
     public int getCurrentAbility(){return currentAbility;}
     public void setCurrentAbility(int i){currentAbility = i;}
     public int getLevel(){return level;}
-    public void increaseLevel(){
-        level++;
-        healthbar.incHealth(maxHealth); // Volles Leben
-        health = maxHealth;
-        baseDamage += 5;
-        if (globalCooldown > 0.2){
-            globalCooldown -= 0.1;
-        }
-    }
+    public int getMaxHealth(){return maxHealth;}
+    public int getBaseDamage(){return baseDamage;}
+    public void increaseLevel(){level++;}
+    public void incBaseDamage(int damage){baseDamage += damage;}
+    public void incMaxHealth(int health){maxHealth += health; healthbar.incHealth(maxHealth); this.health = maxHealth;}
+    public void decGlobalCooldown(double amount){if (globalCooldown > 0.2) globalCooldown -= amount;}
+
     public double getCooldown(){return globalCooldown;}
 
     public void setHealthbar(Healthbar healthbar){this.healthbar = healthbar;}
