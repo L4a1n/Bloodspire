@@ -9,6 +9,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.media.AudioClip;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
@@ -42,16 +43,24 @@ public class Level {
     private Random random;
     private boolean rightMouseDown = false;
     private double mouseX = 0, mouseY = 0;
-    private MouseEvent currentMouseEvent = null;
+    public MouseEvent currentMouseEvent = null;
     private boolean tutorialDone = false;
     private boolean mouseMoved = false;
     private boolean mouseFired = false;
     private boolean abilityUsed = false;
-    private double passedTime = 0;
+    private double passedTime = 59;
+    private double timeUntilNextWave = 60;
     private double passedTimeSinceGameover = 0;
     private boolean paused = false;
     private long lastUpdate = 0;
     private int playerLevel;
+    public boolean ignoreNextClick = false;
+    private AudioClip projectileShot;
+    private AudioClip projectileImpact;
+    private AudioClip waveShot;
+    private AudioClip waveImpact;
+    private AudioClip playerImpact;
+    private List<AudioClip> soundEffects = new ArrayList<>();
 
     public Level() {
         gamePane = new Pane();
@@ -86,9 +95,30 @@ public class Level {
     }
     public void setPaused(boolean paused){this.paused = paused;}
 
+    public void setupSoundEffects(){
+        projectileShot = new AudioClip(getClass().getResource("/sounds/ProjectileShot.wav").toExternalForm());
+        soundEffects.add(projectileShot);
+        projectileImpact = new AudioClip(getClass().getResource("/sounds/ProjectileImpact.wav").toExternalForm());
+        soundEffects.add(projectileImpact);
+        waveShot = new AudioClip(getClass().getResource("/sounds/WaveShot.wav").toExternalForm());
+        soundEffects.add(waveShot);
+        waveImpact = new AudioClip(getClass().getResource("/sounds/WaveImpact.wav").toExternalForm());
+        soundEffects.add(waveImpact);
+        playerImpact = new AudioClip(getClass().getResource("/sounds/PlayerImpact.wav").toExternalForm());
+        soundEffects.add(playerImpact);
+
+
+    }
+
+    public void setEffectVolume(double amount){
+        for (AudioClip a : soundEffects){
+            a.setVolume(amount);
+        }
+    }
+
     public void setupIntro(){
         Image spritesheet = new Image(getClass().getResource("/Mouse_Intro.png").toExternalForm());
-        IntroAnimation = new Animation(spritesheet, 490, 250, 150, 150, 33, 32, 2, 4);
+        IntroAnimation = new Animation(spritesheet, 640, 250, 150, 150, 33, 32, 2, 4);
         gamePane.getChildren().add(IntroAnimation.getCanvas());
         Image spritesheet2 = new Image(getClass().getResource("/Ability_Intro.png").toExternalForm());
         IntroAnimation2 = new Animation(spritesheet2, 440, 250, 400, 100, 128, 32, 8, 2);
@@ -152,6 +182,7 @@ public class Level {
         healthbars.add(healthbar);
         gamePane.getChildren().add(healthbar.getBg());
         gamePane.getChildren().add(healthbar.getVg());
+        gamePane.getChildren().add(healthbar.getHealthText());
 
         abilityBar = new AbilityBar(400, 745);
         for (Rectangle slot : abilityBar.getSlots()){
@@ -213,7 +244,7 @@ public class Level {
         gamePane.setOnMouseDragged((MouseEvent event) -> {
             currentMouseEvent = event;
             // Wenn es die Linke Maustaste ist
-            if (event.getButton() == MouseButton.PRIMARY){
+            if (!paused && event.getButton() == MouseButton.PRIMARY){
                 // Setzt die Koordinaten der Maus zu Zielkoordinaten des Spielers
                 double targetX = event.getX();
                 double targetY = event.getY();
@@ -225,12 +256,13 @@ public class Level {
         gamePane.setOnMousePressed((MouseEvent event) -> {
             currentMouseEvent = event;
             // Wenn es die Linke Maustaste ist
-            if (event.getButton() == MouseButton.PRIMARY){
+            if (!paused && event.getButton() == MouseButton.PRIMARY){
                 // Setzt die Koordinaten der Maus zu Zielkoordinaten des Spielers
                 double targetX = event.getX();
                 double targetY = event.getY();
                 player.setTarget(targetX, targetY); // Zielposition setzen
             }
+
             if (event.getButton() == MouseButton.SECONDARY){
                 rightMouseDown = true;
             }
@@ -304,20 +336,14 @@ public class Level {
 
         GameOverBackgroundVisibility = 0;
         passedTimeSinceGameover = 0;
-        tutorialDone = false;
-        mouseMoved = false;
-        mouseFired = false;
-        abilityUsed = false;
         paused = false;
-        passedTime = 0;
-    }
-
-    public void showLevelUp(){
-        levelUp.run();
+        passedTime = 50;
+        timeUntilNextWave = 60;
     }
 
     public void startGameLoop() {
         playerLevel = player.getLevel();
+        setEffectVolume(0.2);
         gameLoop = new AnimationTimer() {
 
             @Override
@@ -331,7 +357,6 @@ public class Level {
                 // Wird benutzt um die Geschwindigkeit anzupassen, sodass die Bewwegung Framerate-unabhängig ist
                 double dTime = (now - lastUpdate) / 1_000_000_000.0;
                 lastUpdate = now;
-                passedTime += dTime;
 
                 levelUp.setPlayer(player);
 
@@ -340,13 +365,13 @@ public class Level {
                     mouseY = currentMouseEvent.getY();
                 }
 
-
                 if (rightMouseDown && player.getHealth() > 0){
                     switch (player.getCurrentAbility()){
                         case 0:
                             if (abilityBar.getSlotCooldown(0) == 0L){
                                 Projectile projectile = new Projectile(player.getX(), player.getY(), mouseX, mouseY, 0, player.getCurrentAbility(), player.getDamage());
-                                abilityBar.setSlotCooldown(0, (long) (200000000L * player.getCooldown()));
+                                projectileShot.play();
+                                abilityBar.setSlotCooldown(0, (long) (500000000L * player.getCooldown()));
                                 projectiles.add(projectile);
                                 gamePane.getChildren().add(projectile.getShape());
                             }
@@ -354,12 +379,14 @@ public class Level {
                         case 1:
                             if (abilityBar.getSlotCooldown(1) == 0L){
                                 player.fireSalve(projectiles, getGamePane(), player.getX(), player.getY(), mouseX, mouseY);
+                                projectileShot.play();
                                 abilityBar.setSlotCooldown(1, (long) (1000000000L * player.getCooldown()));
                             }
                             break;
                         case 2:
                             if (abilityBar.getSlotCooldown(2) == 0L){
                                 Projectile projectile = new Projectile(player.getX(), player.getY(), mouseX, mouseY, 0, player.getCurrentAbility(), player.getDamage());
+                                waveShot.play();
                                 abilityBar.setSlotCooldown(2, (long) (1000000000L * player.getCooldown()));
                                 projectiles.add(projectile);
                                 gamePane.getChildren().add(projectile.getSickle());
@@ -392,16 +419,28 @@ public class Level {
                     }
                 }
 
-                if (tutorialDone && healthbars.get(0).getPercantage() >= 0){
+                if (player.getHealth() > 0){
                     player.update(dTime, walls); // Spieler-Update
-                    healthbars.get(0).animate(dTime);   // Spieler-Healthbar IntroAnimation
-                    if (passedTime >= 30){
+                }
+                healthbars.get(0).animate(dTime);   // Spieler-Healthbar Animation
+                if (tutorialDone){
+                    passedTime += dTime;
+                    if (passedTime >= timeUntilNextWave){
                         setupSpawns();
                         passedTime = 0;
+                        if (timeUntilNextWave > 20) timeUntilNextWave -= 5;
                     }
                     for (Spawnarea spawn : spawnareas){
                         if (spawnareas.isEmpty()) break;
                         spawn.animate(dTime);
+                        if (spawn.hasEnded(dTime)){
+                            Chest chest = new Chest(spawn.getX(), spawn.getY(), player);
+                            chests.add(chest);
+                            gamePane.getChildren().add(chest);
+                            spawnareas.remove(spawn);
+                            gamePane.getChildren().remove(spawn.getCanvas());
+                            break;
+                        }
                         if (spawn.spawnMonster(now)){
                             if (monsters.isEmpty()){
                                 Monster monster = new Monster(spawn.getX()+ random.nextDouble(spawn.getSize()), spawn.getY()+ random.nextDouble(spawn.getSize()), 1, random.nextInt(2)+1);
@@ -424,7 +463,7 @@ public class Level {
                         }
                     }
                 }
-                if (healthbars.get(0).getPercantage() <= 0){
+                if (player.getHealth() <= 0){
                     GameOverBackground.setVisible(true);
                     passedTimeSinceGameover += dTime;
                     if (GameOverBackgroundVisibility <= 0.7){
@@ -487,10 +526,6 @@ public class Level {
                                 if (!chest.getUsed()){
                                     System.out.println("Potion!!!");
                                     player.heal(300);
-                                    for (Healthbar hb : healthbars){
-                                        if (hb.getId() != 0) continue;
-                                        hb.incHealth(300);
-                                    }
                                 }
                                 chest.setUsed(now);
                                 chest.setInaccessible();
@@ -509,6 +544,7 @@ public class Level {
                     Shape intersection = Shape.intersect(player.getShape(), projectile.getShape());
                     if (!intersection.getBoundsInLocal().isEmpty() && !projectile.getPlayerHit()){
                         player.decHealth(projectile.getDamgage());
+                        playerImpact.play();
                         for (Healthbar hb : healthbars){
                             if (hb.getId() != 0) continue;
                             hb.decHealth(projectile.getDamgage());
@@ -533,6 +569,7 @@ public class Level {
                             case 1:
                                 if (monster.getAttacking() && monster.getAttackCooldown() <= now) {
                                     player.decHealth(monster.getDamage());
+                                    playerImpact.play();
                                     for (Healthbar hb : healthbars) {
                                         if (hb.getId() != 0) continue;
                                         hb.decHealth(monster.getDamage());
@@ -553,6 +590,7 @@ public class Level {
                             if (!intersection.getBoundsInLocal().isEmpty() && !projectile.getTargets().contains(monster)) {
                                 monster.kill(player.getDamage(), now, player.getKnockback());  // Monster bekommt schaden
                                 projectile.setTarget(monster);  // getroffenes Monster wird einer Liste des Projektils hinzugefügt
+                                projectileImpact.play();
                                 for (Healthbar hb : healthbars){
                                     if (monster.getId() == hb.getId()){
                                         hb.decHealth(player.getDamage());   // reduziert den Healthbar
@@ -566,11 +604,7 @@ public class Level {
                         if (!monster.getReturnedXP()) xpBar.increaseXP(monster.getXp());
                         if (!monster.getDroppedLoot()){
                             monster.setDroppedLoot();
-                            if (random.nextInt(10) == 1){
-                                Chest chest = new Chest(monster.getX(), monster.getY(), player);
-                                chests.add(chest);
-                                gamePane.getChildren().add(chest);
-                            }
+                            // Might introduce Item drops ??
                         }
                         if (monster.getDeadSince() <= now){
                             for (Healthbar hb : healthbars){

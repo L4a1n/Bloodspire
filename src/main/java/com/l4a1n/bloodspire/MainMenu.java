@@ -48,9 +48,9 @@ public class MainMenu extends Group {
 
         Platform.runLater(() -> gamePane.requestFocus());
 
+        level.setupSoundEffects();
         level.setupRoom();
         level.setupWalls();
-        level.setupSpawns();
         level.setupChest();
         level.setupPlayer();
         level.setupMouseClick();
@@ -65,8 +65,8 @@ public class MainMenu extends Group {
     public void run(){
         gamePane.getChildren().add(this);
         gamePane.requestFocus();
-        playButton.setAvailable();
-        quitButton.setAvailable();
+        playButton.setUnavailable();
+        quitButton.setUnavailable();
 
         menuLoop = new AnimationTimer() {
             private long lastUpdate = 0;
@@ -85,6 +85,8 @@ public class MainMenu extends Group {
                     titelAnimation.animate(dTime);
                 }
                 else {
+                    if (!playButton.getAvailable()) playButton.setAvailable();
+                    if (!quitButton.getAvailable()) quitButton.setAvailable();
                     playButton.setOnClick(() -> startLevel());
                     quitButton.setOnClick(Platform::exit);
                     playButton.update();

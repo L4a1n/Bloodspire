@@ -3,6 +3,7 @@ module com.l4a1n.bloodspire {
     requires javafx.fxml;
 
     requires com.almasb.fxgl.all;
+    requires javafx.media;
 
     opens com.l4a1n.bloodspire to javafx.fxml;
     exports com.l4a1n.bloodspire;

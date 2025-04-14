@@ -16,7 +16,7 @@ public class Player {
     private int health = baseHealth;
     private int maxHealth = health;
     private int radius = 10;
-    private int baseDamage = 10;
+    private int baseDamage = 20;
     private int damage = 0;
     private double knockback = -2;
     private double distance;
@@ -50,7 +50,7 @@ public class Player {
     public int getDamage(){return damage + baseDamage;}                      // return Schaden den der Spieler macht
     public void decHealth(int damage){health -= damage;}        // verringert das Leben des Spielers um angegebenen Schaden
     public double getKnockback(){return knockback;}             // return Rückstoß den der Spieler mit Attacken verursacht
-    public void heal(int amount){health += amount;}
+    public void heal(int amount){health += amount; if (health >= maxHealth) health = maxHealth; healthbar.incHealth(amount);}
     public int getCurrentAbility(){return currentAbility;}
     public void setCurrentAbility(int i){currentAbility = i;}
     public int getLevel(){return level;}
@@ -58,7 +58,7 @@ public class Player {
     public int getBaseDamage(){return baseDamage;}
     public void increaseLevel(){level++;}
     public void incBaseDamage(int damage){baseDamage += damage;}
-    public void incMaxHealth(int health){maxHealth += health; healthbar.incHealth(maxHealth); this.health = maxHealth;}
+    public void incMaxHealth(int health){maxHealth += health; healthbar.setNewHealth(maxHealth); this.health = maxHealth;}
     public void decGlobalCooldown(double amount){if (globalCooldown > 0.2) globalCooldown -= amount;}
 
     public double getCooldown(){return globalCooldown;}

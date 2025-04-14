@@ -1,14 +1,17 @@
 package com.l4a1n.bloodspire;
 
 import javafx.animation.AnimationTimer;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 
@@ -54,6 +57,16 @@ public class LevelUp extends Group {
         w = 520;
         h = 640;
 
+        // Konsumiert alle Mouse Events
+        Pane blocker = new Pane();
+        blocker.setPrefSize(1280, 720);
+        blocker.setLayoutX(0);
+        blocker.setLayoutY(0);
+        blocker.setStyle("-fx-background-color: rgba(0,0,0,0.2);"); // Fully transparent
+
+        blocker.setPickOnBounds(true);
+        blocker.addEventFilter(MouseEvent.ANY, MouseEvent::consume);
+
         Image background = new Image(getClass().getResource("/LevelUp_Background.png").toExternalForm());
         canvas = new Canvas(w, h);
         canvas.setLayoutX(x);
@@ -88,7 +101,6 @@ public class LevelUp extends Group {
         for (int i = 0; i < 5; i++){
             checkList.add(0);
         }
-        System.out.println(checkList);
 
         Image continueButtonImage = new Image(getClass().getResource("/ContinueButton.png").toExternalForm());
         continueButton = new Button(continueButtonImage, x+ 184, y+ 576, 144, 36, 74, 18, 0);
@@ -139,7 +151,7 @@ public class LevelUp extends Group {
         HltBtnMin.setOnClick(() -> decrease("health"));
 
 
-        this.getChildren().addAll(canvas, dmgBtnPls.getCanvas(), dmgBtnMin.getCanvas(), colBtnPls.getCanvas(),
+        this.getChildren().addAll(blocker, canvas, dmgBtnPls.getCanvas(), dmgBtnMin.getCanvas(), colBtnPls.getCanvas(),
                 colBtnMin.getCanvas(), HltBtnPls.getCanvas(), HltBtnMin.getCanvas(), Ab1BtnPls.getCanvas(),
                 Ab1BtnMin.getCanvas(), Ab2BtnPls.getCanvas(), Ab2BtnMin.getCanvas(), damageText,
                 cooldownText, healthText, pointsText, continueButton.getCanvas());
@@ -151,12 +163,11 @@ public class LevelUp extends Group {
 
     public void setPlayer(Player player){this.player = player;}
 
-    // Have to change to private when done
-    public void resume(){
+    private void resume(){
         leftPoints = availablePoints;
         levelUpLoop.stop();
-        level.setPaused(false);
         gamePane.getChildren().remove(this);
+        Platform.runLater(()->level.setPaused(false));
     }
 
     private void increase(String kind){
@@ -212,6 +223,7 @@ public class LevelUp extends Group {
             button.setUnavailable();
         }
         checkList.replaceAll(ignored -> 0);
+        player.heal(player.getMaxHealth());
 
         levelUpLoop = new AnimationTimer() {
             @Override

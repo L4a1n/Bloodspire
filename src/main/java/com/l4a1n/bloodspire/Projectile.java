@@ -28,6 +28,7 @@ public class Projectile {
     public Projectile(double x, double y, double targetX, double targetY, int source, int kind, int damgage){
         projectiles = new ArrayList<>();
         this.kind = kind;
+        if (source != 0) SPEED = 600;
         switch (kind){
             case 0:
                 possibleCollisions = 2;

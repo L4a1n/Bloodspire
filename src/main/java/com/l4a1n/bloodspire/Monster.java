@@ -57,19 +57,19 @@ public class Monster {
                 damage = 10;
                 range = 50;
                 cooldown = 1000000000;
-                xp = 10;
+                xp = 500;
                 break;
             case 2:
                 spriteSheet = new Image(getClass().getResource("/EvilEye_Spritesheet.png").toExternalForm());
 
                 health = 50;
-                damage = 30;
+                damage = 15;
                 shape.setVisible(false);
                 SPEED = 20;
                 range = 160;
                 cooldown = 1000000000;
                 AVOID_DISTANCE = 150;
-                xp = 15;
+                xp = 500;
                 break;
         }
     }

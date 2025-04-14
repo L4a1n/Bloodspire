@@ -24,6 +24,8 @@ public class Spawnarea {
     private Random random;
     private long lastSpawnTime;
     private long spawnDelay = 1000000000L;
+    private double timeUntilEnd = 50;
+    private double aliveSince = 0;
 
     public Spawnarea(double x, double y){
         shape = new Rectangle(x, y, size, size);
@@ -46,6 +48,11 @@ public class Spawnarea {
     public double getX(){return shape.getX();}
     public double getY(){return shape.getY();}
     public double getSize(){return size;}
+
+    public boolean hasEnded(double dTime){
+        aliveSince += dTime;
+        return aliveSince >= timeUntilEnd;
+    }
 
     public void animate(double dTime){
         if (lastUpdate == 0){

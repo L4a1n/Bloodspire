@@ -3,7 +3,7 @@ package com.l4a1n.bloodspire;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.media.AudioClip;
 
 public class Button {
     private Canvas canvas;
@@ -12,6 +12,9 @@ public class Button {
     private double x, y, w, h;
     private int frameW, frameH, baseFrameY;
     private int currentState = 0; // 0 = normal, 1 = hover, 2 = pressed, 3 = unavailable
+
+    private final AudioClip hoverSound = new AudioClip(getClass().getResource("/sounds/ButtonHover.wav").toExternalForm());
+    private final AudioClip clickSounds = new AudioClip(getClass().getResource("/sounds/ButtonClick.wav").toExternalForm());
 
     private Runnable onClick;
 
@@ -43,9 +46,16 @@ public class Button {
 
     public void setAvailable(){currentState = 0;}
 
+    public boolean getAvailable(){
+        return currentState < 3;
+    }
+
     private void setupMouseEvents() {
         canvas.setOnMouseEntered(e -> {
-            if (currentState != 3) currentState = 1; // Hover
+            if (currentState != 3){
+                currentState = 1;
+                hoverSound.play(); // Hover
+            }
         });
 
         canvas.setOnMouseExited(e -> {
@@ -53,7 +63,10 @@ public class Button {
         });
 
         canvas.setOnMousePressed(e -> {
-            if (currentState != 3)currentState = 2; // Pressed
+            if (currentState != 3){
+                currentState = 2;
+                clickSounds.play(); // Pressed
+            }
         });
 
         canvas.setOnMouseReleased(e -> {
