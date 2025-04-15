@@ -48,18 +48,19 @@ public class Level {
     private boolean mouseMoved = false;
     private boolean mouseFired = false;
     private boolean abilityUsed = false;
-    private double passedTime = 59;
-    private double timeUntilNextWave = 60;
+    private double passedTime = 40;
+    private double timeUntilNextWave = 50;
     private double passedTimeSinceGameover = 0;
     private boolean paused = false;
     private long lastUpdate = 0;
     private int playerLevel;
-    public boolean ignoreNextClick = false;
+    private boolean playedGameOverSound = false;
     private AudioClip projectileShot;
     private AudioClip projectileImpact;
     private AudioClip waveShot;
     private AudioClip waveImpact;
     private AudioClip playerImpact;
+    private AudioClip playerDie;
     private List<AudioClip> soundEffects = new ArrayList<>();
 
     public Level() {
@@ -106,6 +107,8 @@ public class Level {
         soundEffects.add(waveImpact);
         playerImpact = new AudioClip(getClass().getResource("/sounds/PlayerImpact.wav").toExternalForm());
         soundEffects.add(playerImpact);
+        playerDie = new AudioClip(getClass().getResource("/sounds/DieSound.wav").toExternalForm());
+        soundEffects.add(playerDie);
 
 
     }
@@ -337,6 +340,7 @@ public class Level {
         GameOverBackgroundVisibility = 0;
         passedTimeSinceGameover = 0;
         paused = false;
+        playedGameOverSound = false;
         passedTime = 50;
         timeUntilNextWave = 60;
     }
@@ -423,12 +427,14 @@ public class Level {
                     player.update(dTime, walls); // Spieler-Update
                 }
                 healthbars.get(0).animate(dTime);   // Spieler-Healthbar Animation
+
                 if (tutorialDone){
                     passedTime += dTime;
                     if (passedTime >= timeUntilNextWave){
                         setupSpawns();
+                        System.out.println(timeUntilNextWave);
                         passedTime = 0;
-                        if (timeUntilNextWave > 20) timeUntilNextWave -= 5;
+                        if (timeUntilNextWave > 10) timeUntilNextWave -= 5;
                     }
                     for (Spawnarea spawn : spawnareas){
                         if (spawnareas.isEmpty()) break;
@@ -443,7 +449,7 @@ public class Level {
                         }
                         if (spawn.spawnMonster(now)){
                             if (monsters.isEmpty()){
-                                Monster monster = new Monster(spawn.getX()+ random.nextDouble(spawn.getSize()), spawn.getY()+ random.nextDouble(spawn.getSize()), 1, random.nextInt(2)+1);
+                                Monster monster = new Monster(spawn.getX()+ random.nextDouble(spawn.getSize()), spawn.getY()+ random.nextDouble(spawn.getSize()), 1, random.nextInt(3)+1);
                                 monsters.add(monster);
                                 gamePane.getChildren().addAll(monster.getShape(), monster.getCanvas());
                                 Healthbar healthbar = new Healthbar(monster.getX()-20, monster.getY()-20, monster.getHealth(), 1);
@@ -452,7 +458,7 @@ public class Level {
                                 gamePane.getChildren().add(healthbar.getVg());
                             }
                             else {
-                                Monster monster = new Monster(spawn.getX()+ random.nextDouble(spawn.getSize()), spawn.getY()+ random.nextDouble(spawn.getSize()), monsters.get(monsters.size()-1).getId()+1, random.nextInt(2)+1);
+                                Monster monster = new Monster(spawn.getX()+ random.nextDouble(spawn.getSize()), spawn.getY()+ random.nextDouble(spawn.getSize()), monsters.get(monsters.size()-1).getId()+1, random.nextInt(3)+1);
                                 monsters.add(monster);
                                 gamePane.getChildren().addAll(monster.getShape(), monster.getCanvas());
                                 Healthbar healthbar = new Healthbar(monster.getX()-20, monster.getY()-20, monster.getHealth(), monsters.get(monsters.size()-1).getId());
@@ -464,6 +470,15 @@ public class Level {
                     }
                 }
                 if (player.getHealth() <= 0){
+                    if (!playedGameOverSound){
+                        // ???????
+                        for (AudioClip a : soundEffects){
+                            if(a == playerDie) a.setVolume(0.7);
+                            a.setVolume(0.0);
+                        }
+                        playerDie.play();
+                        playedGameOverSound = true;
+                    }
                     GameOverBackground.setVisible(true);
                     passedTimeSinceGameover += dTime;
                     if (GameOverBackgroundVisibility <= 0.7){
@@ -567,6 +582,7 @@ public class Level {
                                 }
                                 break;
                             case 1:
+                                monster.animate(dTime);
                                 if (monster.getAttacking() && monster.getAttackCooldown() <= now) {
                                     player.decHealth(monster.getDamage());
                                     playerImpact.play();
@@ -575,6 +591,15 @@ public class Level {
                                         hb.decHealth(monster.getDamage());
                                         break;
                                     }
+                                    monster.setAttackCooldown(now);
+                                }
+                                break;
+                            case 3:
+                                monster.animate(dTime);
+                                if (monster.getAttacking() && monster.getAttackCooldown() <= now){
+                                    Projectile projectile = new Projectile(monster.getX(), monster.getY(), player.getX(), player.getY(), 1, 1, monster.getDamage());
+                                    projectiles.add(projectile);
+                                    gamePane.getChildren().add(projectile.getShape());
                                     monster.setAttackCooldown(now);
                                 }
                                 break;

@@ -4,8 +4,8 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.image.Image;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.media.AudioClip;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
@@ -19,7 +19,7 @@ public class MainMenu extends Group {
     private Level level;
     private Pane gamePane;
     private AnimationTimer menuLoop;
-    private MouseEvent currentMouseEvent;
+    private AudioClip theme;
 
     public MainMenu(){
         icons = new Image(getClass().getResource("/Menu_Icons.png").toExternalForm());
@@ -33,6 +33,8 @@ public class MainMenu extends Group {
         playButton = new Button(icons, 400, 610, 192, 96, 64, 32, 0);
         quitButton = new Button(icons, 680, 610, 192, 96, 64, 32, 128);
 
+        theme = new AudioClip(getClass().getResource("/sounds/Legacies.wav").toExternalForm());
+        theme.setCycleCount(AudioClip.INDEFINITE);
 
         this.getChildren().addAll(background, titelAnimation.getCanvas(), playButton.getCanvas(), quitButton.getCanvas());
     }
@@ -43,6 +45,7 @@ public class MainMenu extends Group {
 
     public void startLevel(){
         menuLoop.stop();
+        theme.stop();
         gamePane.getChildren().remove(this);
 
 
@@ -67,6 +70,8 @@ public class MainMenu extends Group {
         gamePane.requestFocus();
         playButton.setUnavailable();
         quitButton.setUnavailable();
+
+        theme.play();
 
         menuLoop = new AnimationTimer() {
             private long lastUpdate = 0;

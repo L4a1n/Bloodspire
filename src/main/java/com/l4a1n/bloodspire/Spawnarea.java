@@ -24,7 +24,7 @@ public class Spawnarea {
     private Random random;
     private long lastSpawnTime;
     private long spawnDelay = 1000000000L;
-    private double timeUntilEnd = 50;
+    private double timeUntilEnd = 70;
     private double aliveSince = 0;
 
     public Spawnarea(double x, double y){

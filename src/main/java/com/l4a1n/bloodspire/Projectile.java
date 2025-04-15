@@ -50,6 +50,23 @@ public class Projectile {
                 directionY = dy / distance;
                 break;
             case 1:
+                possibleCollisions = 2;
+                shape = new Circle(radius, Color.ALICEBLUE);
+                projectiles.add(shape);
+                shape.setCenterX(x);
+                shape.setCenterY(y);
+                aliveUntil = 0;
+                targets = new ArrayList<>();
+                this.source = source;
+                this.damgage = damgage;
+                playerHit = false;
+
+                // Berechnet beim Erstellen des Objekts die Richtung in die es sich bewegen soll
+                double dx1 = targetX - x;
+                double dy1 = targetY - y;
+                double distance1 = Math.sqrt(dx1 * dx1 + dy1 * dy1);
+                directionX = dx1 / distance1;
+                directionY = dy1 / distance1;
                 break;
             case 2:
                 this.x = x;

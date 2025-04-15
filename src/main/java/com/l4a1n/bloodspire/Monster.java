@@ -14,10 +14,10 @@ public class Monster {
     private Image spriteSheet;
     private Canvas canvas;
     private GraphicsContext gc;
-    private int frameSize = 32;
-    private int numFrames = 8;
+    private int frameSize;
+    private int numFrames;
     private int currentFrame = 0;
-    private double frameDuration = 10;
+    private double frameDuration;
     private double lastUpdate = 0;
     private double SPEED = 40;                // Geschwindigkeit des Monsters
     private double AVOID_DISTANCE = 40;        // Abstand der zu andern Entitäten eingehalten werden soll
@@ -46,32 +46,59 @@ public class Monster {
         droppedLoot = false;
         this.id = id;
         this.kind = kind;
+
+        switch (kind){
+            case 1:
+                spriteSheet = new Image(getClass().getResource("/SlimeSpritesheet.png").toExternalForm());
+                frameSize = 16;
+                numFrames = 9;
+                frameDuration = 12;
+                shape.setVisible(false);
+
+                radius = 15;
+                health = 100;
+                damage = 10;
+                range = 50;
+                cooldown = 1000000000;
+                xp = 30;
+                break;
+            case 2:
+                spriteSheet = new Image(getClass().getResource("/EvilEye_Spritesheet.png").toExternalForm());
+                frameSize = 32;
+                numFrames = 8;
+                frameDuration = 10;
+                shape.setVisible(false);
+
+                health = 50;
+                damage = 15;
+                SPEED = 20;
+                range = 160;
+                cooldown = 1000000000;
+                AVOID_DISTANCE = 150;
+                xp = 30;
+                break;
+            case 3:
+                spriteSheet = new Image(getClass().getResource("/Lich_Spritesheet.png").toExternalForm());
+                frameSize = 16;
+                numFrames = 2;
+                frameDuration = 3;
+                shape.setVisible(false);
+
+                radius = 20;
+                health = 120;
+                damage = 25;
+                SPEED = 15;
+                range = 200;
+                cooldown = 1500000000;
+                AVOID_DISTANCE = 70;
+                xp = 50;
+                break;
+        }
         canvas = new Canvas(radius*2, radius*2);
         canvas.setLayoutX(x);
         canvas.setLayoutY(y);
         gc = canvas.getGraphicsContext2D();
         gc.setImageSmoothing(false);
-        switch (kind){
-            case 1:
-                health = 100;
-                damage = 10;
-                range = 50;
-                cooldown = 1000000000;
-                xp = 500;
-                break;
-            case 2:
-                spriteSheet = new Image(getClass().getResource("/EvilEye_Spritesheet.png").toExternalForm());
-
-                health = 50;
-                damage = 15;
-                shape.setVisible(false);
-                SPEED = 20;
-                range = 160;
-                cooldown = 1000000000;
-                AVOID_DISTANCE = 150;
-                xp = 500;
-                break;
-        }
     }
 
     // Getters
@@ -98,10 +125,10 @@ public class Monster {
     public void animate(double dTime){
         if (spriteSheet == null) return;
 
-        if (attacking) {
+        if (attacking || kind == 1 || kind == 3) {
             lastUpdate += dTime;
             if (lastUpdate >= 1.0 / frameDuration){
-                gc.clearRect(0, 0, frameSize, frameSize);
+                gc.clearRect(0, 0, radius*2, radius*2);
                 int frameX = (currentFrame % numFrames) * frameSize;
                 int frameY = directionRow * frameSize;
 
@@ -111,7 +138,7 @@ public class Monster {
             }
         } else {
             // Just draw first frame of current direction
-            gc.clearRect(0, 0, frameSize, frameSize);
+            gc.clearRect(0, 0, radius*2, radius*2);
             int frameY = directionRow * frameSize;
             gc.drawImage(spriteSheet, 0, frameY, frameSize, frameSize, 0, 0, radius*2, radius*2);
         }
