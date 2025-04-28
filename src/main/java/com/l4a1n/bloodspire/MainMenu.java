@@ -33,8 +33,9 @@ public class MainMenu extends Group {
         playButton = new Button(icons, 400, 610, 192, 96, 64, 32, 0);
         quitButton = new Button(icons, 680, 610, 192, 96, 64, 32, 128);
 
-        theme = new AudioClip(getClass().getResource("/sounds/Legacies.wav").toExternalForm());
+        theme = new AudioClip(getClass().getResource("/sounds/EclipsedDesolation.mp3").toExternalForm());
         theme.setCycleCount(AudioClip.INDEFINITE);
+        theme.setVolume(0.2);
 
         this.getChildren().addAll(background, titelAnimation.getCanvas(), playButton.getCanvas(), quitButton.getCanvas());
     }
@@ -62,6 +63,7 @@ public class MainMenu extends Group {
         level.setupGameOver();
 
         Platform.runLater(() -> level.startGameLoop());     // Funktioniert nicht wie es soll, könnte aber...
+        level.theme.play();
     }
 
 

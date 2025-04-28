@@ -51,7 +51,7 @@ public class Projectile {
                 break;
             case 1:
                 possibleCollisions = 2;
-                shape = new Circle(radius, Color.ALICEBLUE);
+                shape = new Circle(radius, Color.DEEPSKYBLUE);
                 projectiles.add(shape);
                 shape.setCenterX(x);
                 shape.setCenterY(y);

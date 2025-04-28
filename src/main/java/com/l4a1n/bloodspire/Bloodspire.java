@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import javafx.scene.image.Image;
 
 public class Bloodspire extends Application {
 
@@ -14,6 +15,7 @@ public class Bloodspire extends Application {
 
         Scene scene = new Scene(gamePane, 1280, 820); // Spielszene
 
+        stage.getIcons().add(new Image(getClass().getResource("/Icon.png").toExternalForm()));
         stage.setTitle("Bloodspire");
         stage.setScene(scene);
         stage.setResizable(false);

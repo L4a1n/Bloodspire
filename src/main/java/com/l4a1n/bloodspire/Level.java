@@ -61,6 +61,8 @@ public class Level {
     private AudioClip waveImpact;
     private AudioClip playerImpact;
     private AudioClip playerDie;
+    public AudioClip theme;
+    public AudioClip gameOverTheme;
     private List<AudioClip> soundEffects = new ArrayList<>();
 
     public Level() {
@@ -68,6 +70,13 @@ public class Level {
         gamePane.setStyle("-fx-background-color: darkgrey;");
         gamePane.setFocusTraversable(true);
         random = new Random();
+
+        theme = new AudioClip(getClass().getResource("/sounds/VeilofEternalNightfall.mp3").toExternalForm());
+        theme.setCycleCount(AudioClip.INDEFINITE);
+        theme.setVolume(0.2);
+
+        gameOverTheme = new AudioClip(getClass().getResource("/sounds/DreadMarch.mp3").toExternalForm());
+        theme.setVolume(0.2);
 
         healthbars = new ArrayList<>();
 
@@ -108,7 +117,6 @@ public class Level {
         playerImpact = new AudioClip(getClass().getResource("/sounds/PlayerImpact.wav").toExternalForm());
         soundEffects.add(playerImpact);
         playerDie = new AudioClip(getClass().getResource("/sounds/DieSound.wav").toExternalForm());
-        soundEffects.add(playerDie);
 
 
     }
@@ -471,12 +479,13 @@ public class Level {
                 }
                 if (player.getHealth() <= 0){
                     if (!playedGameOverSound){
-                        // ???????
+                        theme.stop();
                         for (AudioClip a : soundEffects){
                             if(a == playerDie) a.setVolume(0.7);
                             a.setVolume(0.0);
                         }
                         playerDie.play();
+                        gameOverTheme.play();
                         playedGameOverSound = true;
                     }
                     GameOverBackground.setVisible(true);
@@ -495,6 +504,7 @@ public class Level {
                         }
                         passedTimeSinceGameover += dTime;
                         if (passedTimeSinceGameover > 10){
+                            gameOverTheme.stop();
                             gameLoop.stop();
                             resetLevel();
                             Platform.runLater(()-> menu.run());
