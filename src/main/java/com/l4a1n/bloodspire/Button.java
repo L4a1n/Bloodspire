@@ -4,12 +4,13 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.media.AudioClip;
+import javafx.scene.paint.Color;
 
 public class Button {
     private Canvas canvas;
     private GraphicsContext gc;
     private Image sprite;
-    private double x, y, w, h;
+    private double w, h;
     private int frameW, frameH, baseFrameY;
     private int currentState = 0; // 0 = normal, 1 = hover, 2 = pressed, 3 = unavailable
 
@@ -20,8 +21,6 @@ public class Button {
 
     public Button(Image sprite, double x, double y, double w, double h, int frameW, int frameH, int frameY) {
         this.sprite = sprite;
-        this.x = x;
-        this.y = y;
         this.w = w;
         this.h = h;
         this.frameW = frameW;
@@ -29,8 +28,8 @@ public class Button {
         this.baseFrameY = frameY;
 
         canvas = new Canvas(w, h);
-        canvas.setLayoutX(x);
-        canvas.setLayoutY(y);
+        canvas.setTranslateX(x);
+        canvas.setTranslateY(y);
 
         gc = canvas.getGraphicsContext2D();
         gc.setImageSmoothing(false);

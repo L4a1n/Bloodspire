@@ -25,6 +25,7 @@ public class Level {
     private MainMenu menu;
     private AnimationTimer gameLoop;
     private LevelUp levelUp;
+    private PickUpChest pickUpChest;
     private Pane gamePane;
     private List<Wall> walls;
     private Player player;
@@ -90,6 +91,11 @@ public class Level {
         levelUp.setGamePane(gamePane);
         levelUp.setPlayer(player);
 
+        pickUpChest = new PickUpChest();
+        pickUpChest.setLevel(this);
+        pickUpChest.setGamePane(gamePane);
+        pickUpChest.setPlayer(player);
+
         menu.run();
 
         gamePane.requestFocus();
@@ -99,7 +105,7 @@ public class Level {
     public Pane getGamePane() {return gamePane;}
     public AnimationTimer getGameLoop(){return gameLoop;}
 
-    private void setTopLevel(Node node){
+    public void setTopLevel(Node node){
         gamePane.getChildren().remove(node);
         gamePane.getChildren().add(node);
     }
@@ -371,6 +377,7 @@ public class Level {
                 lastUpdate = now;
 
                 levelUp.setPlayer(player);
+                pickUpChest.setPlayer(player);
 
                 if (currentMouseEvent != null) {
                     mouseX = currentMouseEvent.getX();
@@ -528,9 +535,12 @@ public class Level {
 
                 for (Chest chest : chests){
                     //                   if ((player.getX() >= chest.getX() && player.getX() <= chest.getX()+ chest.getSize()) && (player.getY() >= chest.getY() && player.getY() <= chest.getY()+ chest.getSize()) && chest.getAccessible()){
+                    chest.update(dTime);
                     Shape intersection = Shape.intersect(player.getShape(), chest.getShape());
                     if (!intersection.getBoundsInLocal().isEmpty() && chest.getAccessible()){
                         String item = chest.openChest();
+                        setPaused(true);
+                        pickUpChest.run(item);
                         switch (item){
                             case "Salve":
                                 abilityBar.unlockSlot(1);

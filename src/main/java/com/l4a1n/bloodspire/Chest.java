@@ -22,8 +22,16 @@ public class Chest extends Group {
     private Image closed;
     private Canvas canvas;
     private GraphicsContext gc;
+    private GraphicsContext gc2;
     private Player player;
     private Random random;
+    private Canvas icon;
+    private Image iconSpritesheet;
+    private double lastUpdate = 0;
+    private int frameSize = 16;
+    private int numFrames = 5;
+    private int currentFrame = 0;
+    private double frameDuration = 7;
 
     public Chest(double x, double y, Player player) {
         shape = new Rectangle(size, size);
@@ -47,9 +55,19 @@ public class Chest extends Group {
         used = false;
         accesible = true;
 
+        icon = new Canvas(size, size);
+        icon.setLayoutY(-size/1.5);
+
+        iconSpritesheet = new Image(getClass().getResource("/AttentionIcon.png").toExternalForm());
+
+        gc2 = icon.getGraphicsContext2D();
+        gc2.clearRect(0, 0, size, size);
+        gc2.setImageSmoothing(false);
+
+
         generateRandomItem();
 
-        this.getChildren().addAll(canvas, shape);
+        this.getChildren().addAll(canvas, shape, icon);
     }
 
     public Rectangle getShape(){return shape;}
@@ -72,6 +90,26 @@ public class Chest extends Group {
         List<String> items = Arrays.asList("Salve", "Wave", "HealthPotion", "HealthPotion", "HealthPotion");
         random = new Random();
         item = items.get(random.nextInt(items.size()));
+
+    }
+
+    public void update(double dTime){
+        if (!used){
+            lastUpdate += dTime;
+            if (lastUpdate >= 1.0 / frameDuration){
+                gc2.clearRect(0, 0, size, size);
+                int frameX = (currentFrame % numFrames) * frameSize;
+                int frameY = 0;
+
+                gc2.drawImage(iconSpritesheet, frameX, frameY, frameSize, frameSize, 0, 0, size, size);
+                currentFrame = (currentFrame + 1) % numFrames;
+                lastUpdate = 0;
+            }
+        }
+        else {
+            gc2.clearRect(0,0,size,size);
+        }
+
 
     }
 }
