@@ -94,7 +94,7 @@ public class Chest extends Group {
     }
 
     public void update(double dTime){
-        if (!used){
+        if (!used && accesible){
             lastUpdate += dTime;
             if (lastUpdate >= 1.0 / frameDuration){
                 gc2.clearRect(0, 0, size, size);

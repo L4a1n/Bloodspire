@@ -533,46 +533,6 @@ public class Level {
                     projectile.update(dTime, walls);
                 }
 
-                for (Chest chest : chests){
-                    //                   if ((player.getX() >= chest.getX() && player.getX() <= chest.getX()+ chest.getSize()) && (player.getY() >= chest.getY() && player.getY() <= chest.getY()+ chest.getSize()) && chest.getAccessible()){
-                    chest.update(dTime);
-                    Shape intersection = Shape.intersect(player.getShape(), chest.getShape());
-                    if (!intersection.getBoundsInLocal().isEmpty() && chest.getAccessible()){
-                        String item = chest.openChest();
-                        setPaused(true);
-                        pickUpChest.run(item);
-                        switch (item){
-                            case "Salve":
-                                abilityBar.unlockSlot(1);
-                                chest.setUsed(now);
-                                chest.setInaccessible();
-                                break;
-                            case "Wave":
-                                abilityBar.unlockSlot(2);
-                                chest.setUsed(now);
-                                chest.setInaccessible();
-                                break;
-                            case "Blast":
-                                abilityBar.unlockSlot(3);
-                                chest.setUsed(now);
-                                chest.setInaccessible();
-                                break;
-                            case "HealthPotion":
-                                if (!chest.getUsed()){
-                                    System.out.println("Potion!!!");
-                                    player.heal(300);
-                                }
-                                chest.setUsed(now);
-                                chest.setInaccessible();
-                                break;
-                        }
-                    }
-                    if (chest.getTimeSinceUsed() < now && chest.getUsed()){
-                        gamePane.getChildren().remove(chest);
-                        chests.remove(chest);
-                        break;
-                    }
-                }
 
                 for (Projectile projectile : projectiles){
                     if (projectile.getSource() == 0) continue;
@@ -672,10 +632,54 @@ public class Level {
                 setTopLevel(GameOverBackground);
                 setTopLevel(GameOverAnimation.getCanvas());
 
+
+                // Ab hier kommen auslöser welche neue Fenster öffnen...
                 if (player.getLevel() > playerLevel){
                     playerLevel = player.getLevel();
                     levelUp.run();
                 }
+
+                for (Chest chest : chests){
+                    //                   if ((player.getX() >= chest.getX() && player.getX() <= chest.getX()+ chest.getSize()) && (player.getY() >= chest.getY() && player.getY() <= chest.getY()+ chest.getSize()) && chest.getAccessible()){
+                    chest.update(dTime);
+                    Shape intersection = Shape.intersect(player.getShape(), chest.getShape());
+                    if (!intersection.getBoundsInLocal().isEmpty() && chest.getAccessible()){
+                        String item = chest.openChest();
+                        setPaused(true);
+                        pickUpChest.run(item);
+                        switch (item){
+                            case "Salve":
+                                abilityBar.unlockSlot(1);
+                                chest.setUsed(now);
+                                chest.setInaccessible();
+                                break;
+                            case "Wave":
+                                abilityBar.unlockSlot(2);
+                                chest.setUsed(now);
+                                chest.setInaccessible();
+                                break;
+                            case "Blast":
+                                abilityBar.unlockSlot(3);
+                                chest.setUsed(now);
+                                chest.setInaccessible();
+                                break;
+                            case "HealthPotion":
+                                if (!chest.getUsed()){
+                                    System.out.println("Potion!!!");
+                                    player.heal(300);
+                                }
+                                chest.setUsed(now);
+                                chest.setInaccessible();
+                                break;
+                        }
+                    }
+                    if (chest.getTimeSinceUsed() < now && chest.getUsed()){
+                        gamePane.getChildren().remove(chest);
+                        chests.remove(chest);
+                        break;
+                    }
+                }
+
             }
         };
         gameLoop.start();

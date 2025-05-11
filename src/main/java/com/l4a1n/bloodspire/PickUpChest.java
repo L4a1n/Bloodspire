@@ -17,6 +17,8 @@ public class PickUpChest extends Group {
     private GraphicsContext gc;
     private Pane gamePane;
     private double x, y, w, h;
+    private long lastUpdate;
+    private Animation chestAnimation;
 
     private Button continueButton;
 
@@ -49,7 +51,11 @@ public class PickUpChest extends Group {
         continueButton = new Button(continueButtonImage, x+120, y+330, 144, 36, 74, 18, 0);
         continueButton.setOnClick(this::resume);
 
-        this.getChildren().addAll( canvas, continueButton.getCanvas());
+        Image chestSpritesheet = new Image(getClass().getResource("/ChestAnimation.png").toExternalForm());
+        chestAnimation = new Animation(chestSpritesheet, x+96, y+96, 192, 192, 32, 32, 23, 11);
+
+
+        this.getChildren().addAll(blocker, canvas, continueButton.getCanvas(), chestAnimation.getCanvas());
         continueButton.getCanvas().setStyle("-fx-border-color: red;");
 
     }
@@ -67,14 +73,24 @@ public class PickUpChest extends Group {
     }
 
     public void run(String item){
-        level.setPaused(true);
         gamePane.getChildren().add(this);
         gamePane.requestFocus();
+        chestAnimation.play();
+        chestAnimation.setCurrentFrame(0);
 
         loop = new AnimationTimer() {
             @Override
             public void handle(long now) {
+                if (lastUpdate == 0){
+                    lastUpdate = now;
+                    return;
+                }
 
+                double dTime = (now - lastUpdate) / 1_000_000_000.0;
+                lastUpdate = now;
+
+                if (chestAnimation.getCurrentFrame() == 22) chestAnimation.pause();
+                chestAnimation.animate(dTime);
                 continueButton.update();
 
             }

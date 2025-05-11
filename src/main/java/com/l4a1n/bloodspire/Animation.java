@@ -45,6 +45,8 @@ public class Animation {
 
     public int getCurrentFrame(){return currentFrame;}
 
+    public void setCurrentFrame(int frame){currentFrame = frame;}
+
     public void pause(){paused = true;}
     public void play(){paused = false;}
 
